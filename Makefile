@@ -92,6 +92,10 @@ docker-run: ## Run production Docker image locally
 	docker run --env-file .env -p 3333:3333 $(IMAGE_NAME)
 
 # ── OpenSpec ─────────────────────────────────────────────────────────────────
+.PHONY: spec-init
+spec-init: ## OpenSpec: initialize spec structure in the project (run once)
+	pnpm exec openspec init
+
 .PHONY: spec-propose
 spec-propose: ## OpenSpec: propose a new feature spec
 	pnpm exec openspec propose
