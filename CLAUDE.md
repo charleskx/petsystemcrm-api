@@ -59,8 +59,17 @@ Gerencia clientes, pets, agendamentos, produtos (estoque), vendas e fornecedores
 ### OpenSpec
 
 Instalado como `devDependency` local: `pnpm add -D @fission-ai/openspec`
-Executado via `pnpm exec openspec` ou targets do Makefile — nunca instalação global.
-Usado para spec-driven development: `/opsx:propose`, `/opsx:apply`, `/opsx:verify`.
+Nunca instalação global — executado via `pnpm exec openspec`.
+
+Comandos CLI (terminal):
+- `make spec-init` — inicializa a estrutura de specs no projeto (rodar uma vez)
+- `make spec-update` — atualiza o OpenSpec
+
+Comandos de workflow (slash commands dentro do Claude Code):
+- `/opsx:propose` — propõe uma nova feature como spec
+- `/opsx:apply` — implementa as tasks da spec
+- `/opsx:verify` — verifica se a implementação bate com a spec
+
 Os specs gerados ficam versionados no repositório como markdown.
 
 ---
@@ -441,9 +450,8 @@ make format        biome format --write
 make typecheck     tsc --noEmit
 make test          vitest run
 make docker-build  build da imagem Docker
-make spec-propose  pnpm exec openspec propose
-make spec-apply    pnpm exec openspec apply
-make spec-verify   pnpm exec openspec verify
+make spec-init     inicializa estrutura OpenSpec (rodar uma vez)
+make spec-update   atualiza o OpenSpec para a versão mais recente
 ```
 
 ---

@@ -92,18 +92,11 @@ docker-run: ## Run production Docker image locally
 	docker run --env-file .env -p 3333:3333 $(IMAGE_NAME)
 
 # ── OpenSpec ─────────────────────────────────────────────────────────────────
+# /opsx:propose, /opsx:apply, /opsx:verify are Claude Code slash commands — use them inside Claude Code, not here.
 .PHONY: spec-init
 spec-init: ## OpenSpec: initialize spec structure in the project (run once)
 	pnpm exec openspec init
 
-.PHONY: spec-propose
-spec-propose: ## OpenSpec: propose a new feature spec
-	pnpm exec openspec propose
-
-.PHONY: spec-apply
-spec-apply: ## OpenSpec: apply spec tasks to implementation
-	pnpm exec openspec apply
-
-.PHONY: spec-verify
-spec-verify: ## OpenSpec: verify implementation against spec
-	pnpm exec openspec verify
+.PHONY: spec-update
+spec-update: ## OpenSpec: update OpenSpec to latest version
+	pnpm exec openspec update
