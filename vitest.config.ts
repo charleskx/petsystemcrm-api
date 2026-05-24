@@ -9,6 +9,7 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "node",
+		fileParallelism: false,
 		env: {
 			NODE_ENV: "test",
 			DATABASE_URL: databaseUrl,

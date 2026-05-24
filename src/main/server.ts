@@ -14,6 +14,7 @@ import { clientsRoutes } from "../interfaces/http/routes/clients"
 import { membersRoutes } from "../interfaces/http/routes/members"
 import { petsRoutes } from "../interfaces/http/routes/pets"
 import { servicesRoutes } from "../interfaces/http/routes/services"
+import { scheduleRoutes } from "../interfaces/http/routes/schedule"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -53,6 +54,7 @@ export async function buildApp() {
 	await app.register(membersRoutes)
 	await app.register(petsRoutes)
 	await app.register(servicesRoutes)
+	await app.register(scheduleRoutes)
 
 	return app
 }
