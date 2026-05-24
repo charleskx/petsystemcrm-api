@@ -45,3 +45,17 @@ export const tenantMembers = pgTable("tenant_members", {
 	role: memberRoleEnum("role").notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 })
+
+export const tenantInvitations = pgTable("tenant_invitations", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	tenantId: text("tenant_id")
+		.notNull()
+		.references(() => tenants.id, { onDelete: "cascade" }),
+	email: varchar("email", { length: 255 }).notNull(),
+	role: memberRoleEnum("role").notNull(),
+	token: text("token").notNull().unique(),
+	expiresAt: timestamp("expires_at").notNull(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+})
