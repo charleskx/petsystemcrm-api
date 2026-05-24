@@ -76,17 +76,34 @@ typecheck: ## Run TypeScript type checker
 check: lint typecheck ## Run linter + type checker together
 
 # ── Tests ────────────────────────────────────────────────────────────────────
+# Tests run inside the Docker app container (Node LTS) to avoid host Node version constraints.
+# The first run installs deps inside the container; subsequent runs reuse the named volume cache.
+COMPOSE_APP := $(COMPOSE_DEV) --profile app
+
+.PHONY: test-db
+test-db: ## Ensure petsystemcrm_test DB exists and is migrated (uses postgres container)
+	$(COMPOSE_DEV) exec postgres psql -U postgres -c "CREATE DATABASE petsystemcrm_test" 2>/dev/null || true
+	$(COMPOSE_APP) up -d app
+	$(COMPOSE_APP) exec app sh -c "corepack enable && pnpm install --frozen-lockfile --silent"
+	$(COMPOSE_APP) exec app pnpm exec drizzle-kit migrate
+
 .PHONY: test
-test: ## Run all tests
-	pnpm exec vitest run
+test: ## Run all tests inside Docker (Node LTS)
+	$(COMPOSE_APP) up -d app
+	$(COMPOSE_APP) exec app sh -c "corepack enable && pnpm install --frozen-lockfile --silent"
+	$(COMPOSE_DEV) exec postgres psql -U postgres -c "CREATE DATABASE petsystemcrm_test" 2>/dev/null || true
+	$(COMPOSE_APP) exec app pnpm exec drizzle-kit migrate
+	$(COMPOSE_APP) exec app pnpm exec vitest run
 
 .PHONY: test-watch
-test-watch: ## Run tests in watch mode
-	pnpm exec vitest
+test-watch: ## Run tests in watch mode inside Docker
+	$(COMPOSE_APP) up -d app
+	$(COMPOSE_APP) exec app pnpm exec vitest
 
 .PHONY: test-coverage
-test-coverage: ## Run tests with coverage report
-	pnpm exec vitest run --coverage
+test-coverage: ## Run tests with coverage report inside Docker
+	$(COMPOSE_APP) up -d app
+	$(COMPOSE_APP) exec app pnpm exec vitest run --coverage
 
 # ── Docker ───────────────────────────────────────────────────────────────────
 .PHONY: docker-build

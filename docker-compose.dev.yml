@@ -30,5 +30,25 @@ services:
       postgres:
         condition: service_healthy
 
+  app:
+    image: node:22-alpine
+    working_dir: /app
+    command: tail -f /dev/null
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/petsystemcrm_test
+      BETTER_AUTH_SECRET: test-secret-minimum-32-chars-long!!
+      NODE_ENV: test
+      API_URL: http://localhost:3333
+      ALLOWED_ORIGINS: http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - app
+
 volumes:
   postgres_data:
+  app_node_modules:
