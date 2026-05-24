@@ -3,6 +3,7 @@ import cors from "@fastify/cors"
 import helmet from "@fastify/helmet"
 import rateLimit from "@fastify/rate-limit"
 import cookie from "@fastify/cookie"
+import multipart from "@fastify/multipart"
 import swagger from "@fastify/swagger"
 import swaggerUi from "@fastify/swagger-ui"
 import { env } from "./config/env"
@@ -26,6 +27,9 @@ export async function buildApp() {
 
 	// Cookie support required by better-auth
 	await app.register(cookie)
+
+	// Multipart support for file uploads
+	await app.register(multipart)
 
 	// OpenAPI docs
 	await app.register(swagger, {

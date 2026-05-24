@@ -5,6 +5,13 @@ import {
 	TenantAlreadyExistsError,
 	registerTenant,
 } from "../../../application/tenant/register-tenant.use-case"
+import { getTenant, TenantNotFoundError } from "../../../application/tenant/get-tenant.use-case"
+import { updateTenant } from "../../../application/tenant/update-tenant.use-case"
+import {
+	uploadTenantLogo,
+	InvalidLogoError,
+} from "../../../application/tenant/upload-tenant-logo.use-case"
+import { authenticate } from "../middlewares/authenticate"
 
 const registerTenantBodySchema = z
 	.object({
@@ -19,6 +26,12 @@ const registerTenantBodySchema = z
 		(data) => validateDocument(data.document.replace(/\D/g, ""), data.documentType),
 		{ message: "Documento inválido", path: ["document"] },
 	)
+
+const updateTenantBody = z.object({
+	name: z.string().min(2).max(255).optional(),
+	pixKey: z.string().max(255).nullable().optional(),
+	pixKeyType: z.enum(["cpf", "cnpj", "email", "phone", "random"]).nullable().optional(),
+})
 
 export async function tenantsRoutes(app: FastifyInstance) {
 	// POST /tenants is public — no authenticate middleware
@@ -37,6 +50,107 @@ export async function tenantsRoutes(app: FastifyInstance) {
 		} catch (error) {
 			if (error instanceof TenantAlreadyExistsError) {
 				return reply.status(409).send({ error: error.message })
+			}
+			throw error
+		}
+	})
+
+	app.get("/tenants/:id", { preHandler: authenticate }, async (request, reply) => {
+		const { id } = request.params as { id: string }
+
+		if (request.tenantId !== id) {
+			return reply.status(403).send({ error: "Acesso negado" })
+		}
+
+		try {
+			const tenant = await getTenant(id)
+			return reply.send(tenant)
+		} catch (error) {
+			if (error instanceof TenantNotFoundError) {
+				return reply.status(404).send({ error: error.message })
+			}
+			throw error
+		}
+	})
+
+	app.patch("/tenants/:id", { preHandler: authenticate }, async (request, reply) => {
+		const { id } = request.params as { id: string }
+
+		if (request.tenantId !== id) {
+			return reply.status(403).send({ error: "Acesso negado" })
+		}
+
+		if (request.role !== "owner") {
+			return reply.status(403).send({ error: "Apenas o proprietário pode atualizar os dados da empresa" })
+		}
+
+		const result = updateTenantBody.safeParse(request.body)
+		if (!result.success) {
+			return reply.status(422).send({
+				error: "Dados inválidos",
+				details: z.treeifyError(result.error),
+			})
+		}
+
+		try {
+			const tenant = await updateTenant({ id, ...result.data })
+			return reply.send(tenant)
+		} catch (error) {
+			if (error instanceof TenantNotFoundError) {
+				return reply.status(404).send({ error: error.message })
+			}
+			throw error
+		}
+	})
+
+	// per-route file size limit: 5 MB — overrides any global multipart config
+	const LOGO_MAX_FILE_SIZE = 5 * 1024 * 1024
+
+	app.post("/tenants/:id/logo", { preHandler: authenticate }, async (request, reply) => {
+		const { id } = request.params as { id: string }
+
+		if (request.tenantId !== id) {
+			return reply.status(403).send({ error: "Acesso negado" })
+		}
+
+		if (request.role !== "owner") {
+			return reply.status(403).send({ error: "Apenas o proprietário pode atualizar o logo da empresa" })
+		}
+
+		const data = await request.file({ limits: { fileSize: LOGO_MAX_FILE_SIZE } })
+
+		if (!data) {
+			return reply.status(422).send({ error: "Arquivo não enviado" })
+		}
+
+		try {
+			const chunks: Buffer[] = []
+			let totalSize = 0
+
+			for await (const chunk of data.file) {
+				chunks.push(chunk as Buffer)
+				totalSize += chunk.length
+			}
+
+			// busboy sets `truncated` when limits.fileSize is exceeded
+			if ((data.file as unknown as { truncated?: boolean }).truncated) {
+				return reply.status(422).send({ error: "Arquivo muito grande. O tamanho máximo permitido é 5 MB" })
+			}
+
+			const { Readable } = await import("node:stream")
+			const stream = Readable.from(Buffer.concat(chunks))
+
+			const result = await uploadTenantLogo({
+				tenantId: id,
+				stream,
+				mimetype: data.mimetype,
+				fileSize: totalSize,
+			})
+
+			return reply.send(result)
+		} catch (error) {
+			if (error instanceof InvalidLogoError) {
+				return reply.status(422).send({ error: error.message })
 			}
 			throw error
 		}
