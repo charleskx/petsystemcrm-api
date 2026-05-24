@@ -1,5 +1,11 @@
 .DEFAULT_GOAL := help
 
+# Load .env if present (makes DATABASE_URL and other vars available to make targets)
+ifneq (,$(wildcard .env))
+  include .env
+  export
+endif
+
 # ── Variables ───────────────────────────────────────────────────────────────
 IMAGE_NAME := petsystemcrm-api
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
