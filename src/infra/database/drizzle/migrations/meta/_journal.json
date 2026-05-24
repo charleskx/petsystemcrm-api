@@ -8,6 +8,13 @@
       "when": 1779627305102,
       "tag": "0000_strange_joystick",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779632771076,
+      "tag": "0001_late_blue_shield",
+      "breakpoints": true
     }
   ]
 }

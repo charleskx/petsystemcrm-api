@@ -9,6 +9,7 @@ import { env } from "./config/env"
 import { authRoutes } from "../interfaces/http/routes/auth"
 import { healthRoutes } from "../interfaces/http/routes/health"
 import { tenantsRoutes } from "../interfaces/http/routes/tenants"
+import { clientsRoutes } from "../interfaces/http/routes/clients"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -39,6 +40,9 @@ export async function buildApp() {
 	await app.register(healthRoutes)
 	await app.register(authRoutes)
 	await app.register(tenantsRoutes)
+
+	// Authenticated routes
+	await app.register(clientsRoutes)
 
 	return app
 }
