@@ -12,6 +12,7 @@ import { healthRoutes } from "../interfaces/http/routes/health"
 import { tenantsRoutes } from "../interfaces/http/routes/tenants"
 import { clientsRoutes } from "../interfaces/http/routes/clients"
 import { membersRoutes } from "../interfaces/http/routes/members"
+import { petsRoutes } from "../interfaces/http/routes/pets"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -49,6 +50,7 @@ export async function buildApp() {
 	// Authenticated routes
 	await app.register(clientsRoutes)
 	await app.register(membersRoutes)
+	await app.register(petsRoutes)
 
 	return app
 }
