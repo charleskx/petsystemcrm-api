@@ -10,6 +10,9 @@ dist
 .env.*.local
 !.env.example
 
+# pnpm
+.pnpm-store
+
 # Logs
 *.log
 pnpm-debug.log*
@@ -21,6 +24,13 @@ npm-debug.log*
 # Test coverage
 coverage
 .nyc_output
+junit*.xml
+
+# Drizzle
+.drizzle
+
+# Docker local overrides (developer-specific, not shared)
+docker-compose.override.yml
 
 # OS
 .DS_Store
@@ -37,3 +47,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+*.tgz
