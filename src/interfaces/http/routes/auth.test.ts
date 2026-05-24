@@ -17,7 +17,7 @@ beforeAll(async () => {
 		url: "/tenants",
 		payload: {
 			tenantName: "Auth Test Shop",
-			document: "62307952000183", // valid CNPJ
+			document: "45823416000148", // valid CNPJ
 			documentType: "cnpj",
 			userName: "Auth User",
 			email: testEmail,

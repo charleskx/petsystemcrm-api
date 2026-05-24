@@ -42,7 +42,7 @@ describe("authenticate middleware", () => {
 			url: "/tenants",
 			payload: {
 				tenantName: "Middleware Test Shop",
-				document: "97199796000124", // valid CNPJ
+				document: "12345678000195", // valid CNPJ
 				documentType: "cnpj",
 				userName: "Middleware User",
 				email,

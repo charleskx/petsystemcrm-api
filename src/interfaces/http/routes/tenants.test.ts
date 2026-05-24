@@ -65,13 +65,13 @@ describe("POST /tenants", () => {
 		await app.inject({
 			method: "POST",
 			url: "/tenants",
-			payload: { ...validPayload, email: sharedEmail, document: "34218338000103" },
+			payload: { ...validPayload, email: sharedEmail, document: "53612734000198" },
 		})
 		// Duplicate email
 		const response = await app.inject({
 			method: "POST",
 			url: "/tenants",
-			payload: { ...validPayload, email: sharedEmail, document: "30608418000119" },
+			payload: { ...validPayload, email: sharedEmail, document: "96769900000177" },
 		})
 		expect(response.statusCode).toBe(409)
 		expect(response.json().error).toMatch(/e-mail/i)
