@@ -43,6 +43,13 @@
       "when": 1779664588284,
       "tag": "0005_rare_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779674166299,
+      "tag": "0006_petite_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm"
+import { and, eq, gte, lt, inArray } from "drizzle-orm"
 import { db } from "../../infra/database/drizzle/client"
-import { holidays, workSchedules } from "../../infra/database/drizzle/schema"
+import { appointments, holidays, workSchedules } from "../../infra/database/drizzle/schema"
 import type { DayOfWeek } from "../../domain/schedule/work-schedule.entity"
 
 export interface GetAvailableSlotsInput {
@@ -53,5 +53,28 @@ export async function getAvailableSlots(input: GetAvailableSlotsInput): Promise<
 		slots.push(minutesToTime(start))
 	}
 
-	return slots
+	const dayStart = new Date(`${date}T00:00:00.000Z`)
+	const dayEnd = new Date(`${date}T23:59:59.999Z`)
+
+	const bookedAppointments = await db
+		.select({ scheduledAt: appointments.scheduledAt })
+		.from(appointments)
+		.where(
+			and(
+				eq(appointments.tenantId, tenantId),
+				inArray(appointments.status, ["scheduled", "in_progress"]),
+				gte(appointments.scheduledAt, dayStart),
+				lt(appointments.scheduledAt, dayEnd),
+			),
+		)
+
+	const bookedSlots = new Set(
+		bookedAppointments.map((a) => {
+			const h = String(a.scheduledAt.getUTCHours()).padStart(2, "0")
+			const m = String(a.scheduledAt.getUTCMinutes()).padStart(2, "0")
+			return `${h}:${m}`
+		}),
+	)
+
+	return slots.filter((slot) => !bookedSlots.has(slot))
 }

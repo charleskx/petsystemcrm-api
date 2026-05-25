@@ -15,6 +15,7 @@ import { membersRoutes } from "../interfaces/http/routes/members"
 import { petsRoutes } from "../interfaces/http/routes/pets"
 import { servicesRoutes } from "../interfaces/http/routes/services"
 import { scheduleRoutes } from "../interfaces/http/routes/schedule"
+import { appointmentsRoutes } from "../interfaces/http/routes/appointments"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -27,7 +28,7 @@ export async function buildApp() {
 		origin: env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()),
 		credentials: true,
 	})
-	await app.register(rateLimit, { max: 100, timeWindow: "1 minute" })
+	await app.register(rateLimit, { max: env.NODE_ENV === "test" ? 10000 : 100, timeWindow: "1 minute" })
 
 	// Cookie support required by better-auth
 	await app.register(cookie)
@@ -55,6 +56,7 @@ export async function buildApp() {
 	await app.register(petsRoutes)
 	await app.register(servicesRoutes)
 	await app.register(scheduleRoutes)
+	await app.register(appointmentsRoutes)
 
 	return app
 }

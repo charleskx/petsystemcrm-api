@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Consultar slots disponíveis
 O sistema SHALL calcular e retornar os horários disponíveis para uma data e duração informadas, considerando a grade horária do tenant, feriados cadastrados e agendamentos existentes com status `scheduled` ou `in_progress`.
@@ -50,12 +50,3 @@ O sistema SHALL calcular e retornar os horários disponíveis para uma data e du
 #### Scenario: Sem autenticação
 - **WHEN** `GET /schedule/available-slots` é chamado sem cookie de sessão válido
 - **THEN** o sistema retorna `401`
-
----
-
-### Requirement: Bloqueio por assinatura expirada
-O sistema SHALL bloquear a consulta de slots disponíveis quando o `subscription_status` do tenant for `expired` ou `cancelled`.
-
-#### Scenario: Tenant com assinatura expirada
-- **WHEN** `GET /schedule/available-slots` é chamado por tenant com `subscription_status = expired`
-- **THEN** o sistema retorna `402 Payment Required`
