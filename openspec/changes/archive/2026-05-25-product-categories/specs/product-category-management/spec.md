@@ -1,0 +1,1 @@
+<!-- No spec-level changes in this delta. All requirements in openspec/specs/product-category-management/spec.md are correct and complete. This change adds integration tests that verify the existing requirements without altering them. -->
