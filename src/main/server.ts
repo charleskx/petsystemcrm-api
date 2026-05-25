@@ -18,6 +18,7 @@ import { scheduleRoutes } from "../interfaces/http/routes/schedule"
 import { appointmentsRoutes } from "../interfaces/http/routes/appointments"
 import { productsRoutes } from "../interfaces/http/routes/products"
 import { stockRoutes } from "../interfaces/http/routes/stock"
+import { suppliersRoutes } from "../interfaces/http/routes/suppliers"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -61,6 +62,7 @@ export async function buildApp() {
 	await app.register(appointmentsRoutes)
 	await app.register(productsRoutes)
 	await app.register(stockRoutes)
+	await app.register(suppliersRoutes)
 
 	return app
 }
