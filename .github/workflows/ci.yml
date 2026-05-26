@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  quality:
+    name: Lint, typecheck & test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: petsystemcrm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm exec biome check .
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Run migrations on test DB
+        run: pnpm exec drizzle-kit migrate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/petsystemcrm_test
+
+      - name: Test
+        run: pnpm exec vitest run
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/petsystemcrm_test
+          NODE_ENV: test
+          BETTER_AUTH_SECRET: test-secret-minimum-32-chars-long!!
+          API_URL: http://localhost:3333
+          ALLOWED_ORIGINS: http://localhost:3000
+          STRIPE_SECRET_KEY: sk_test_dummy_key_for_tests
+          STRIPE_WEBHOOK_SECRET: whsec_test_dummy_secret_for_tests

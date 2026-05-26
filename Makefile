@@ -114,6 +114,17 @@ docker-build: ## Build production Docker image
 docker-run: ## Run production Docker image locally
 	docker run --env-file .env -p 3333:3333 $(IMAGE_NAME)
 
+# ── Release ──────────────────────────────────────────────────────────────────
+.PHONY: release
+release: ## Bump version, generate CHANGELOG.md, tag and push (triggers deploy)
+	pnpm exec changelogen --bump --output CHANGELOG.md
+	@VERSION=$$(node -p "require('./package.json').version") && \
+	git add CHANGELOG.md package.json && \
+	git commit --no-verify -m "chore(release): v$$VERSION" && \
+	git tag "v$$VERSION" && \
+	git push --follow-tags && \
+	echo "\n✅ Released v$$VERSION — deploy triggered on Coolify"
+
 # ── OpenSpec ─────────────────────────────────────────────────────────────────
 # /opsx:propose, /opsx:apply, /opsx:verify are Claude Code slash commands — use them inside Claude Code, not here.
 .PHONY: spec-init
