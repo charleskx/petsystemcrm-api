@@ -78,11 +78,65 @@ ALLOWED_ORIGINS=https://app.seudominio.com
 
 ---
 
-## 7. Deploy automático
+## 7. CI/CD via GitHub Actions
 
-1. Na aba **General** da aplicação, habilite **Auto Deploy**
-2. No GitHub → **Settings** → **Webhooks** do repositório, adicione o webhook gerado pelo Coolify
-3. A partir de agora, qualquer push na branch `main` dispara um novo deploy automaticamente
+O deploy **não** é disparado por push direto na `main` — ele só acontece quando uma nova versão é lançada via `make release` (tag `v*.*.*`).
+
+### 7.1 Desabilitar auto-deploy por push no Coolify
+
+Na aba **General** da aplicação no Coolify, **desabilite** a opção **Auto Deploy** (o trigger agora é o workflow do GitHub, não o webhook de push).
+
+### 7.2 Obter a URL do webhook de deploy do Coolify
+
+1. Na aplicação → **Deployments** → copie a **Deploy Webhook URL**
+   - Formato: `https://<coolify-host>/api/v1/deploy?uuid=<uuid>&token=<token>`
+
+### 7.3 Adicionar o secret no GitHub
+
+1. No repositório GitHub → **Settings** → **Secrets and variables** → **Actions**
+2. Clique em **New repository secret**
+3. Nome: `COOLIFY_WEBHOOK_URL`
+4. Valor: a URL copiada no passo anterior
+
+### 7.4 Fluxo completo
+
+```
+git commit  →  push  →  CI roda (lint + typecheck + tests)
+                              ↓ (só após fazer release)
+              make release  →  tag v*.*.* pushed  →  deploy.yml  →  Coolify deploy
+```
+
+---
+
+## 7b. Fluxo de release (gerar versão)
+
+Para lançar uma nova versão em produção:
+
+```bash
+# 1. Garanta que o branch main está atualizado e os testes passam
+git checkout main && git pull
+make test
+
+# 2. Rode o release — faz tudo automaticamente:
+make release
+```
+
+O `make release` executa em sequência:
+1. **Analisa os commits** desde a última tag usando [Conventional Commits](https://www.conventionalcommits.org/)
+2. **Bumpa o `package.json`** — `patch` para `fix:`, `minor` para `feat:`, `major` para breaking changes
+3. **Gera/atualiza `CHANGELOG.md`** com os commits agrupados por tipo
+4. **Commita** `CHANGELOG.md` + `package.json` com mensagem `chore(release): vX.Y.Z`
+5. **Cria a tag** `vX.Y.Z` e faz `git push --follow-tags`
+6. **GitHub Actions** detecta a tag → `deploy.yml` roda → Coolify faz o deploy
+7. **GitHub Release** é criado automaticamente com o conteúdo do `CHANGELOG.md`
+
+### Tipos de bump automático
+
+| Commit | Bump |
+|--------|------|
+| `fix:` | patch (1.0.0 → 1.0.1) |
+| `feat:` | minor (1.0.0 → 1.1.0) |
+| `feat!:` ou `BREAKING CHANGE:` | major (1.0.0 → 2.0.0) |
 
 ---
 
@@ -171,14 +225,26 @@ A documentação OpenAPI fica disponível em `http://localhost:3333/documentatio
 
 ## Checklist de go-live
 
+### Infraestrutura
 - [ ] VPS provisionada e Coolify instalado
-- [ ] DNS apontando para o IP da VPS
-- [ ] Source GitHub configurado
-- [ ] Banco PostgreSQL criado e `DATABASE_URL` copiada
-- [ ] Todas as variáveis de ambiente preenchidas
-- [ ] Domínio e SSL configurados
-- [ ] Auto Deploy habilitado e webhook GitHub configurado
-- [ ] Health check configurado
-- [ ] Backup automático habilitado
+- [ ] DNS apontando para o IP da VPS (registro A)
+- [ ] Source GitHub configurado no Coolify
+- [ ] Banco PostgreSQL 16 criado e `DATABASE_URL` copiada
+- [ ] Aplicação criada no Coolify (Dockerfile, porta 3333)
+- [ ] Todas as variáveis de ambiente preenchidas (ver seção 5)
+- [ ] Domínio e SSL configurados (Auto SSL habilitado)
+- [ ] Auto Deploy **desabilitado** no Coolify (deploy é via tag)
+- [ ] Health check configurado (`/health`, interval 30s)
+- [ ] Backup automático do banco habilitado (retenção 7 dias)
+
+### CI/CD
+- [ ] Secret `COOLIFY_WEBHOOK_URL` adicionado no GitHub (Settings → Secrets → Actions)
+- [ ] Primeiro deploy manual feito pelo Coolify para validar o setup
+- [ ] Testar `make release` e confirmar que o deploy foi disparado
+
+### Integrações externas
 - [ ] Webhook do Stripe apontando para `https://api.seudominio.com/payments/stripe/webhook`
-- [ ] Cloudflare R2 bucket criado e permissões configuradas
+- [ ] `STRIPE_PRICE_ESSENTIAL` e `STRIPE_PRICE_PREMIUM` preenchidos com os IDs do Stripe Dashboard
+- [ ] Cloudflare R2: bucket criado, CORS configurado, variáveis R2_* preenchidas
+- [ ] Resend: domínio verificado, `RESEND_API_KEY` preenchida
+- [ ] Google Maps: API key com Places API habilitada, `GOOGLE_MAPS_API_KEY` preenchida

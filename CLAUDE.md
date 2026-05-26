@@ -369,7 +369,7 @@ Executado em todo request autenticado, exceto: `/auth/*`, `/payments/stripe/webh
 
 1. Carrega o tenant via `tenantId` do JWT
 2. Se `subscription_status === 'trial'` e `trial_ends_at < agora`: atualiza para `expired` (lazy evaluation)
-3. Se `subscription_status === 'expired'` ou `'cancelled'`: retorna `402 Payment Required`
+3. Se `subscription_status === 'expired'`, `'cancelled'` ou `'past_due'`: retorna `402 Payment Required`
 4. Se `subscription_status === 'active'` e `plan === 'essential'`: bloqueia rotas premium-only com `403 Forbidden`
 
 Rotas essential: `/clients`, `/pets`, `/appointments`, `/services`, `/schedule`, `/products`, `/stock`, `/products/categories`
@@ -448,11 +448,19 @@ make migrate-gen   gera nova migration
 make lint          biome check
 make format        biome format --write
 make typecheck     tsc --noEmit
-make test          vitest run
+make test          vitest run (dentro do Docker)
 make docker-build  build da imagem Docker
+make release       bumpa versão, gera CHANGELOG.md, cria tag e faz push (dispara deploy)
 make spec-init     inicializa estrutura OpenSpec (rodar uma vez)
 make spec-update   atualiza o OpenSpec para a versão mais recente
 ```
+
+### CI/CD
+
+- **CI** (`.github/workflows/ci.yml`): roda em todo push e PR — lint + typecheck + tests
+- **Deploy** (`.github/workflows/deploy.yml`): roda apenas em tags `v*.*.*` — chama webhook do Coolify e cria GitHub Release
+- **Releases**: sempre via `make release` — nunca fazer deploy por push direto na `main`
+- Ver `COOLIFY.md` para o passo-a-passo completo de setup e fluxo de release
 
 ---
 
