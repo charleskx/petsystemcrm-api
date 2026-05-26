@@ -20,6 +20,8 @@ import { productsRoutes } from "../interfaces/http/routes/products"
 import { stockRoutes } from "../interfaces/http/routes/stock"
 import { suppliersRoutes } from "../interfaces/http/routes/suppliers"
 import { salesRoutes } from "../interfaces/http/routes/sales"
+import { billingRoutes } from "../interfaces/http/routes/billing"
+import { paymentsRoutes } from "../interfaces/http/routes/payments"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -53,6 +55,7 @@ export async function buildApp() {
 	await app.register(healthRoutes)
 	await app.register(authRoutes)
 	await app.register(tenantsRoutes)
+	await app.register(paymentsRoutes)
 
 	// Authenticated routes
 	await app.register(clientsRoutes)
@@ -65,6 +68,7 @@ export async function buildApp() {
 	await app.register(stockRoutes)
 	await app.register(suppliersRoutes)
 	await app.register(salesRoutes)
+	await app.register(billingRoutes)
 
 	return app
 }

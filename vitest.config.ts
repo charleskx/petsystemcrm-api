@@ -16,6 +16,8 @@ export default defineConfig({
 			BETTER_AUTH_SECRET: "test-secret-minimum-32-chars-long!!",
 			API_URL: "http://localhost:3333",
 			ALLOWED_ORIGINS: "http://localhost:3000",
+			STRIPE_SECRET_KEY: "sk_test_dummy_key_for_tests",
+			STRIPE_WEBHOOK_SECRET: "whsec_test_dummy_secret_for_tests",
 		},
 		coverage: {
 			provider: "v8",
