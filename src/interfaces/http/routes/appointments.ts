@@ -120,7 +120,7 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/appointments/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "Appointment")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar agendamentos" })
 		}
 
@@ -145,7 +145,7 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/appointments/:id/status", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "Appointment")) {
 			return reply.status(403).send({ error: "Sem permissão para alterar status de agendamentos" })
 		}
 
@@ -170,7 +170,7 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/appointments/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("delete", "Appointment")) {
 			return reply.status(403).send({ error: "Sem permissão para cancelar agendamentos" })
 		}
 

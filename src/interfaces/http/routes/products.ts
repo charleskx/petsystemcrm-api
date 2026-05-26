@@ -84,7 +84,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	// ── Categories ─────────────────────────────────────────────
 
 	app.post("/products/categories", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "ProductCategory")) {
 			return reply.status(403).send({ error: "Sem permissão para criar categorias" })
 		}
 
@@ -110,7 +110,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/products/categories/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "ProductCategory")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar categorias" })
 		}
 
@@ -135,7 +135,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/products/categories/:id", { preHandler }, async (request, reply) => {
-		if (request.role !== "owner") {
+		if (request.ability.cannot("delete", "ProductCategory")) {
 			return reply.status(403).send({ error: "Sem permissão para remover categorias" })
 		}
 
@@ -157,7 +157,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	// ── Products ───────────────────────────────────────────────
 
 	app.post("/products", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "Product")) {
 			return reply.status(403).send({ error: "Sem permissão para criar produtos" })
 		}
 
@@ -212,7 +212,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/products/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "Product")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar produtos" })
 		}
 
@@ -244,7 +244,7 @@ export async function productsRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/products/:id", { preHandler }, async (request, reply) => {
-		if (request.role !== "owner") {
+		if (request.ability.cannot("delete", "Product")) {
 			return reply.status(403).send({ error: "Sem permissão para inativar produtos" })
 		}
 

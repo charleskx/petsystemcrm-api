@@ -35,7 +35,7 @@ const updatePricingBody = z.array(pricingTierSchema).min(1, "Informe ao menos um
 
 export async function servicesRoutes(app: FastifyInstance) {
 	app.post("/services", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "Service")) {
 			return reply.status(403).send({ error: "Sem permissão para criar serviços" })
 		}
 
@@ -70,7 +70,7 @@ export async function servicesRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/services/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "Service")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar serviços" })
 		}
 
@@ -95,7 +95,7 @@ export async function servicesRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/services/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("delete", "Service")) {
 			return reply.status(403).send({ error: "Sem permissão para remover serviços" })
 		}
 
@@ -125,7 +125,7 @@ export async function servicesRoutes(app: FastifyInstance) {
 	})
 
 	app.put("/services/:id/pricing", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "ServicePricing")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar preços" })
 		}
 

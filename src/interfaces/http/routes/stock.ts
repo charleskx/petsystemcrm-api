@@ -29,7 +29,7 @@ const listMovementsQuery = z.object({
 
 export async function stockRoutes(app: FastifyInstance) {
 	app.post("/stock/movements", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "StockMovement")) {
 			return reply.status(403).send({ error: "Sem permissão para registrar movimentações de estoque" })
 		}
 

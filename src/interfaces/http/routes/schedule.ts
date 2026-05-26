@@ -61,7 +61,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
 	})
 
 	app.put("/schedule", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "WorkSchedule")) {
 			return reply.status(403).send({ error: "Sem permissão para alterar a grade horária" })
 		}
 
@@ -83,7 +83,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
 	})
 
 	app.post("/schedule/holidays", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "Holiday")) {
 			return reply.status(403).send({ error: "Sem permissão para cadastrar feriados" })
 		}
 
@@ -107,7 +107,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/schedule/holidays/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("delete", "Holiday")) {
 			return reply.status(403).send({ error: "Sem permissão para remover feriados" })
 		}
 

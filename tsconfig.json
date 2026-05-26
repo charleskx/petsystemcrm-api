@@ -4,6 +4,10 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@casl/ability": ["./node_modules/@casl/ability/dist/types/index"]
+    },
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",

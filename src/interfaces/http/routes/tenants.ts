@@ -80,7 +80,7 @@ export async function tenantsRoutes(app: FastifyInstance) {
 			return reply.status(403).send({ error: "Acesso negado" })
 		}
 
-		if (request.role !== "owner") {
+		if (request.ability.cannot("update", "Tenant")) {
 			return reply.status(403).send({ error: "Apenas o proprietário pode atualizar os dados da empresa" })
 		}
 
@@ -113,7 +113,7 @@ export async function tenantsRoutes(app: FastifyInstance) {
 			return reply.status(403).send({ error: "Acesso negado" })
 		}
 
-		if (request.role !== "owner") {
+		if (request.ability.cannot("update", "Tenant")) {
 			return reply.status(403).send({ error: "Apenas o proprietário pode atualizar o logo da empresa" })
 		}
 

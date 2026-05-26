@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm"
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { fromNodeHeaders } from "better-auth/node"
 import { auth } from "../../../infra/auth"
+import { defineAbilityFor } from "../../../infra/auth/ability"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenantMembers } from "../../../infra/database/drizzle/schema"
 
@@ -30,4 +31,5 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
 	request.userId = session.user.id
 	request.tenantId = member.tenantId
 	request.role = member.role as "owner" | "financial" | "collaborator"
+	request.ability = defineAbilityFor(request.role)
 }

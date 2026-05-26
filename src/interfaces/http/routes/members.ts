@@ -61,7 +61,7 @@ export async function membersRoutes(app: FastifyInstance) {
 				return reply.status(403).send({ error: "Acesso negado" })
 			}
 
-			if (request.role !== "owner") {
+			if (request.ability.cannot("create", "Member")) {
 				return reply.status(403).send({ error: "Apenas o proprietário pode convidar membros" })
 			}
 
@@ -140,7 +140,7 @@ export async function membersRoutes(app: FastifyInstance) {
 				return reply.status(403).send({ error: "Acesso negado" })
 			}
 
-			if (request.role !== "owner") {
+			if (request.ability.cannot("update", "Member")) {
 				return reply.status(403).send({ error: "Apenas o proprietário pode alterar roles" })
 			}
 
@@ -177,7 +177,7 @@ export async function membersRoutes(app: FastifyInstance) {
 				return reply.status(403).send({ error: "Acesso negado" })
 			}
 
-			if (request.role !== "owner") {
+			if (request.ability.cannot("delete", "Member")) {
 				return reply.status(403).send({ error: "Apenas o proprietário pode remover membros" })
 			}
 

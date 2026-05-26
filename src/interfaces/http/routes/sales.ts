@@ -55,7 +55,7 @@ export async function salesRoutes(app: FastifyInstance) {
 	})
 
 	app.post("/sales", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("create", "Sale")) {
 			return reply.status(403).send({ error: "Sem permissão para registrar vendas" })
 		}
 
@@ -93,7 +93,7 @@ export async function salesRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/sales/:id/status", { preHandler }, async (request, reply) => {
-		if (request.role === "collaborator") {
+		if (request.ability.cannot("update", "Sale")) {
 			return reply.status(403).send({ error: "Sem permissão para alterar o status da venda" })
 		}
 

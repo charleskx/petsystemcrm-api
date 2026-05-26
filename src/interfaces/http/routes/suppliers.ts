@@ -60,7 +60,7 @@ export async function suppliersRoutes(app: FastifyInstance) {
 	})
 
 	app.post("/suppliers", { preHandler }, async (request, reply) => {
-		if (request.role === "financial") {
+		if (request.ability.cannot("create", "Supplier")) {
 			return reply.status(403).send({ error: "Sem permissão para cadastrar fornecedores" })
 		}
 
@@ -94,7 +94,7 @@ export async function suppliersRoutes(app: FastifyInstance) {
 	})
 
 	app.patch("/suppliers/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "financial") {
+		if (request.ability.cannot("update", "Supplier")) {
 			return reply.status(403).send({ error: "Sem permissão para atualizar fornecedores" })
 		}
 
@@ -119,7 +119,7 @@ export async function suppliersRoutes(app: FastifyInstance) {
 	})
 
 	app.delete("/suppliers/:id", { preHandler }, async (request, reply) => {
-		if (request.role === "financial") {
+		if (request.ability.cannot("delete", "Supplier")) {
 			return reply.status(403).send({ error: "Sem permissão para remover fornecedores" })
 		}
 
