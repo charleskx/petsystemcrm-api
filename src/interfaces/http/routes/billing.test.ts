@@ -3,7 +3,7 @@ import { buildApp } from "../../../main/server"
 import type { FastifyInstance } from "fastify"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
-import { eq } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 
 // Valid CNPJs unique to this test file (computed with correct check digits)
 const CNPJ_SUBSCRIPTION = "72000000001093"
@@ -17,6 +17,20 @@ const CNPJ_GUARD_ESSENTIAL_SALES = "72000000001760"
 const CNPJ_GUARD_TRIAL = "72000000001840"
 const CNPJ_GUARD_PAST_DUE = "72000000001921"
 const CNPJ_WEBHOOK = "72000000002065"
+
+const ALL_CNPJS = [
+	CNPJ_SUBSCRIPTION,
+	CNPJ_CHECKOUT,
+	CNPJ_PORTAL,
+	CNPJ_PLAN,
+	CNPJ_GUARD_EXPIRED,
+	CNPJ_GUARD_CANCELLED,
+	CNPJ_GUARD_ESSENTIAL_SUPPLIERS,
+	CNPJ_GUARD_ESSENTIAL_SALES,
+	CNPJ_GUARD_TRIAL,
+	CNPJ_GUARD_PAST_DUE,
+	CNPJ_WEBHOOK,
+]
 
 const PASSWORD = "senha1234"
 
@@ -62,9 +76,11 @@ async function createTenantAndLogin(opts: {
 beforeAll(async () => {
 	app = await buildApp()
 	await app.ready()
+	await db.delete(tenants).where(inArray(tenants.document, ALL_CNPJS))
 })
 
 afterAll(async () => {
+	await db.delete(tenants).where(inArray(tenants.document, ALL_CNPJS))
 	await app.close()
 })
 
