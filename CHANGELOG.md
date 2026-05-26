@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.2.1
+
+[compare changes](https://github.com/charleskx/petsystemcrm-api/compare/v1.2.0...v1.2.1)
+
+### 🩹 Fixes
+
+- **ci:** Add checkout step to deploy workflow ([4ded4d8](https://github.com/charleskx/petsystemcrm-api/commit/4ded4d8))
+- **ci:** Use Coolify API token via Authorization header for deploy trigger ([88e45c8](https://github.com/charleskx/petsystemcrm-api/commit/88e45c8))
+
+### ❤️ Contributors
+
+- Charleston Amaral ([@charleskx](https://github.com/charleskx))
+
 ## v1.2.0
 
 
