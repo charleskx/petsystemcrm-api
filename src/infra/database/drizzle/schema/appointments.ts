@@ -1,8 +1,8 @@
 import { numeric, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
-import { tenants } from "./tenants"
 import { clients } from "./clients"
 import { pets } from "./pets"
 import { services } from "./services"
+import { tenants } from "./tenants"
 
 export const appointmentStatusEnum = pgEnum("appointment_status", [
 	"scheduled",

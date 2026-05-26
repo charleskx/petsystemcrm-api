@@ -1,32 +1,38 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
+import {
+	AppointmentAlreadyCancelledError,
+	AppointmentCompletedError,
+	cancelAppointment,
+} from "../../../application/appointment/cancel-appointment.use-case"
+import {
+	ClientNotFoundError,
+	createAppointment,
+	MissingPricingError,
+	PetMismatchError,
+	SlotUnavailableError,
+} from "../../../application/appointment/create-appointment.use-case"
+import {
+	AppointmentNotFoundError,
+	getAppointment,
+} from "../../../application/appointment/get-appointment.use-case"
+import { listAppointments } from "../../../application/appointment/list-appointments.use-case"
+import {
+	AppointmentCancelledError,
+	updateAppointment,
+} from "../../../application/appointment/update-appointment.use-case"
+import {
+	InvalidStatusTransitionError,
+	updateAppointmentStatus,
+} from "../../../application/appointment/update-appointment-status.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { subscriptionGuard } from "../middlewares/subscription-guard"
 import {
-	createAppointment,
-	SlotUnavailableError,
-	MissingPricingError,
-	ClientNotFoundError,
-	PetMismatchError,
-} from "../../../application/appointment/create-appointment.use-case"
-import { listAppointments } from "../../../application/appointment/list-appointments.use-case"
-import { getAppointment, AppointmentNotFoundError } from "../../../application/appointment/get-appointment.use-case"
-import { updateAppointment, AppointmentCancelledError } from "../../../application/appointment/update-appointment.use-case"
-import {
-	updateAppointmentStatus,
-	InvalidStatusTransitionError,
-} from "../../../application/appointment/update-appointment-status.use-case"
-import {
-	cancelAppointment,
-	AppointmentAlreadyCancelledError,
-	AppointmentCompletedError,
-} from "../../../application/appointment/cancel-appointment.use-case"
-import {
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
@@ -53,7 +59,10 @@ const updateStatusBody = z.object({
 })
 
 const listQuerySchema = z.object({
-	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+	date: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/)
+		.optional(),
 	status: appointmentStatusEnum.optional(),
 	clientId: z.string().optional(),
 	petId: z.string().optional(),
@@ -76,7 +85,10 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 						clientId: { type: "string" },
 						petId: { type: "string" },
 						scheduledAt: { type: "string" },
-						paymentMethod: { type: "string", enum: ["pix", "credit_card", "debit_card", "cash", "other"] },
+						paymentMethod: {
+							type: "string",
+							enum: ["pix", "credit_card", "debit_card", "cash", "other"],
+						},
 						serviceIds: { type: "array", items: { type: "string" } },
 						notes: { type: "string" },
 					},
@@ -93,7 +105,9 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = createAppointmentBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const { scheduledAt, ...rest } = result.data
@@ -135,7 +149,10 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 					type: "object",
 					properties: {
 						date: { type: "string" },
-						status: { type: "string", enum: ["scheduled", "in_progress", "completed", "cancelled"] },
+						status: {
+							type: "string",
+							enum: ["scheduled", "in_progress", "completed", "cancelled"],
+						},
 						clientId: { type: "string" },
 						petId: { type: "string" },
 						page: { type: "integer", minimum: 1 },
@@ -153,7 +170,9 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = listQuerySchema.safeParse(request.query)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const { data } = result
@@ -222,7 +241,10 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 					type: "object",
 					properties: {
 						notes: { type: "string" },
-						paymentMethod: { type: "string", enum: ["pix", "credit_card", "debit_card", "cash", "other"] },
+						paymentMethod: {
+							type: "string",
+							enum: ["pix", "credit_card", "debit_card", "cash", "other"],
+						},
 					},
 				},
 				response: {
@@ -243,11 +265,17 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 			const { id } = request.params as { id: string }
 			const result = updateAppointmentBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
-				const appointment = await updateAppointment({ id, tenantId: request.tenantId, ...result.data })
+				const appointment = await updateAppointment({
+					id,
+					tenantId: request.tenantId,
+					...result.data,
+				})
 				return reply.send(appointment)
 			} catch (error) {
 				if (error instanceof AppointmentNotFoundError) {
@@ -292,17 +320,25 @@ export async function appointmentsRoutes(app: FastifyInstance) {
 		},
 		async (request, reply) => {
 			if (request.ability.cannot("update", "Appointment")) {
-				return reply.status(403).send({ error: "Sem permissão para alterar status de agendamentos" })
+				return reply
+					.status(403)
+					.send({ error: "Sem permissão para alterar status de agendamentos" })
 			}
 
 			const { id } = request.params as { id: string }
 			const result = updateStatusBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
-				const appointment = await updateAppointmentStatus({ id, tenantId: request.tenantId, status: result.data.status })
+				const appointment = await updateAppointmentStatus({
+					id,
+					tenantId: request.tenantId,
+					status: result.data.status,
+				})
 				return reply.send(appointment)
 			} catch (error) {
 				if (error instanceof AppointmentNotFoundError) {

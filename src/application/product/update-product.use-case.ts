@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ProductProps, UnitType } from "../../domain/product/product.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { productCategories, products, suppliers } from "../../infra/database/drizzle/schema"
-import type { ProductProps, UnitType } from "../../domain/product/product.entity"
 
 export class ProductNotFoundError extends Error {
 	constructor() {
@@ -96,11 +96,7 @@ export async function updateProduct(input: UpdateProductInput): Promise<ProductP
 	if (input.minQuantity !== undefined) updateData.minQuantity = input.minQuantity
 	if (input.expiryDate !== undefined) updateData.expiryDate = input.expiryDate
 
-	const [updated] = await db
-		.update(products)
-		.set(updateData)
-		.where(eq(products.id, id))
-		.returning()
+	const [updated] = await db.update(products).set(updateData).where(eq(products.id, id)).returning()
 
 	return updated as ProductProps
 }

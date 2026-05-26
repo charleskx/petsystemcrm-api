@@ -1,6 +1,6 @@
-import { buildApp } from "./server"
-import { env } from "./config/env"
 import { startJobs } from "../interfaces/jobs"
+import { env } from "./config/env"
+import { buildApp } from "./server"
 
 async function start() {
 	const app = await buildApp()

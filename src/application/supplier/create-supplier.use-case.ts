@@ -1,7 +1,7 @@
+import { validateCNPJ, validateCPF } from "../../domain/shared/document.validator"
+import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { suppliers } from "../../infra/database/drizzle/schema"
-import type { SupplierProps } from "../../domain/supplier/supplier.entity"
-import { validateCPF, validateCNPJ } from "../../domain/shared/document.validator"
 
 export class InvalidDocumentError extends Error {
 	constructor() {

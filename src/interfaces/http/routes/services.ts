@@ -1,23 +1,23 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
+import { createService } from "../../../application/service/create-service.use-case"
+import { deleteService } from "../../../application/service/delete-service.use-case"
+import { getService, ServiceNotFoundError } from "../../../application/service/get-service.use-case"
+import { getServicePricing } from "../../../application/service/get-service-pricing.use-case"
+import { listServices } from "../../../application/service/list-services.use-case"
+import { updateService } from "../../../application/service/update-service.use-case"
+import {
+	DuplicatePetSizeError,
+	updateServicePricing,
+} from "../../../application/service/update-service-pricing.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { createService } from "../../../application/service/create-service.use-case"
-import { listServices } from "../../../application/service/list-services.use-case"
-import { getService, ServiceNotFoundError } from "../../../application/service/get-service.use-case"
-import { updateService } from "../../../application/service/update-service.use-case"
-import { deleteService } from "../../../application/service/delete-service.use-case"
-import { getServicePricing } from "../../../application/service/get-service-pricing.use-case"
 import {
-	updateServicePricing,
-	DuplicatePetSizeError,
-} from "../../../application/service/update-service-pricing.use-case"
-import {
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ProductProps } from "../../domain/product/product.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { productCategories, products, suppliers } from "../../infra/database/drizzle/schema"
-import type { ProductProps } from "../../domain/product/product.entity"
 
 export class ProductNotFoundError extends Error {
 	constructor() {
@@ -12,7 +12,12 @@ export class ProductNotFoundError extends Error {
 export async function getProduct(
 	id: string,
 	tenantId: string,
-): Promise<ProductProps & { category: { id: string; name: string } | null; supplier: { id: string; name: string } | null }> {
+): Promise<
+	ProductProps & {
+		category: { id: string; name: string } | null
+		supplier: { id: string; name: string } | null
+	}
+> {
 	const [row] = await db
 		.select()
 		.from(products)

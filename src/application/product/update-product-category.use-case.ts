@@ -1,7 +1,7 @@
 import { and, eq, ne } from "drizzle-orm"
+import type { ProductCategoryProps } from "../../domain/product/product-category.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { productCategories } from "../../infra/database/drizzle/schema"
-import type { ProductCategoryProps } from "../../domain/product/product-category.entity"
 
 export class CategoryNotFoundError extends Error {
 	constructor() {

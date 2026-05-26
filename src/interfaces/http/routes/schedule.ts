@@ -1,20 +1,26 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
+import {
+	createHoliday,
+	DuplicateHolidayError,
+} from "../../../application/schedule/create-holiday.use-case"
+import {
+	deleteHoliday,
+	HolidayNotFoundError,
+} from "../../../application/schedule/delete-holiday.use-case"
+import { getAvailableSlots } from "../../../application/schedule/get-available-slots.use-case"
+import { getWorkSchedule } from "../../../application/schedule/get-work-schedule.use-case"
+import { listHolidays } from "../../../application/schedule/list-holidays.use-case"
+import { upsertWorkSchedule } from "../../../application/schedule/upsert-work-schedule.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { getWorkSchedule } from "../../../application/schedule/get-work-schedule.use-case"
-import { upsertWorkSchedule } from "../../../application/schedule/upsert-work-schedule.use-case"
-import { listHolidays } from "../../../application/schedule/list-holidays.use-case"
-import { createHoliday, DuplicateHolidayError } from "../../../application/schedule/create-holiday.use-case"
-import { deleteHoliday, HolidayNotFoundError } from "../../../application/schedule/delete-holiday.use-case"
-import { getAvailableSlots } from "../../../application/schedule/get-available-slots.use-case"
 import {
 	errorSchema,
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]

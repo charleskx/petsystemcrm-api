@@ -1,7 +1,13 @@
 import { and, eq } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { appointments, appointmentServices, clients, pets, services } from "../../infra/database/drizzle/schema"
 import type { AppointmentProps } from "../../domain/appointment/appointment.entity"
+import { db } from "../../infra/database/drizzle/client"
+import {
+	appointmentServices,
+	appointments,
+	clients,
+	pets,
+	services,
+} from "../../infra/database/drizzle/schema"
 
 export class AppointmentNotFoundError extends Error {
 	constructor() {

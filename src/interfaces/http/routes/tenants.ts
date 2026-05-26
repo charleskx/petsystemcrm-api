@@ -1,22 +1,22 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { validateDocument } from "../../../domain/shared/document.validator"
-import {
-	TenantAlreadyExistsError,
-	registerTenant,
-} from "../../../application/tenant/register-tenant.use-case"
 import { getTenant, TenantNotFoundError } from "../../../application/tenant/get-tenant.use-case"
+import {
+	registerTenant,
+	TenantAlreadyExistsError,
+} from "../../../application/tenant/register-tenant.use-case"
 import { updateTenant } from "../../../application/tenant/update-tenant.use-case"
 import {
-	uploadTenantLogo,
 	InvalidLogoError,
+	uploadTenantLogo,
 } from "../../../application/tenant/upload-tenant-logo.use-case"
+import { validateDocument } from "../../../domain/shared/document.validator"
 import { authenticate } from "../middlewares/authenticate"
 import {
 	errorSchema,
+	forbiddenSchema,
 	notFoundSchema,
 	unauthorizedSchema,
-	forbiddenSchema,
 	unprocessableSchema,
 } from "../schemas/shared"
 
@@ -29,10 +29,10 @@ const registerTenantBodySchema = z
 		email: z.email(),
 		password: z.string().min(8),
 	})
-	.refine(
-		(data) => validateDocument(data.document.replace(/\D/g, ""), data.documentType),
-		{ message: "Documento inválido", path: ["document"] },
-	)
+	.refine((data) => validateDocument(data.document.replace(/\D/g, ""), data.documentType), {
+		message: "Documento inválido",
+		path: ["document"],
+	})
 
 const updateTenantBody = z.object({
 	name: z.string().min(2).max(255).optional(),
@@ -165,7 +165,9 @@ export async function tenantsRoutes(app: FastifyInstance) {
 			}
 
 			if (request.ability.cannot("update", "Tenant")) {
-				return reply.status(403).send({ error: "Apenas o proprietário pode atualizar os dados da empresa" })
+				return reply
+					.status(403)
+					.send({ error: "Apenas o proprietário pode atualizar os dados da empresa" })
 			}
 
 			const result = updateTenantBody.safeParse(request.body)
@@ -222,7 +224,9 @@ export async function tenantsRoutes(app: FastifyInstance) {
 			}
 
 			if (request.ability.cannot("update", "Tenant")) {
-				return reply.status(403).send({ error: "Apenas o proprietário pode atualizar o logo da empresa" })
+				return reply
+					.status(403)
+					.send({ error: "Apenas o proprietário pode atualizar o logo da empresa" })
 			}
 
 			const data = await request.file({ limits: { fileSize: LOGO_MAX_FILE_SIZE } })
@@ -242,7 +246,9 @@ export async function tenantsRoutes(app: FastifyInstance) {
 
 				// busboy sets `truncated` when limits.fileSize is exceeded
 				if ((data.file as unknown as { truncated?: boolean }).truncated) {
-					return reply.status(422).send({ error: "Arquivo muito grande. O tamanho máximo permitido é 5 MB" })
+					return reply
+						.status(422)
+						.send({ error: "Arquivo muito grande. O tamanho máximo permitido é 5 MB" })
 				}
 
 				const { Readable } = await import("node:stream")

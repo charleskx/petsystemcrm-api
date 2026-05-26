@@ -1,10 +1,16 @@
-import { index, integer, numeric, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core"
-import { tenants } from "./tenants"
+import { index, integer, numeric, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 import { clients } from "./clients"
 import { products } from "./products"
+import { tenants } from "./tenants"
 
 export const saleChannelEnum = pgEnum("sale_channel", ["in_store", "online"])
-export const salePaymentMethodEnum = pgEnum("sale_payment_method", ["pix", "credit_card", "debit_card", "cash", "other"])
+export const salePaymentMethodEnum = pgEnum("sale_payment_method", [
+	"pix",
+	"credit_card",
+	"debit_card",
+	"cash",
+	"other",
+])
 export const saleStatusEnum = pgEnum("sale_status", ["pending", "paid", "cancelled"])
 
 export const sales = pgTable(

@@ -1,6 +1,6 @@
 import { boolean, integer, numeric, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core"
-import { tenants } from "./tenants"
 import { petSizeEnum } from "./pets"
+import { tenants } from "./tenants"
 
 export const services = pgTable("services", {
 	id: text("id")

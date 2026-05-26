@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
 import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { buildApp } from "../../../main/server"
 import { authenticate } from "./authenticate"
 
 let app: FastifyInstance

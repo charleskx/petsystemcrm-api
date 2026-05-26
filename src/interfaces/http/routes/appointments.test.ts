@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
-import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantMembers } from "../../../infra/database/drizzle/schema"
 import { and, eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { db } from "../../../infra/database/drizzle/client"
+import { tenantMembers, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 let app: FastifyInstance
 
@@ -92,7 +92,12 @@ async function createClient(app: FastifyInstance, cookie: string): Promise<strin
 	return res.json().id
 }
 
-async function createPet(app: FastifyInstance, cookie: string, clientId: string, size = "medium"): Promise<string> {
+async function createPet(
+	app: FastifyInstance,
+	cookie: string,
+	clientId: string,
+	size = "medium",
+): Promise<string> {
 	const res = await app.inject({
 		method: "POST",
 		url: `/clients/${clientId}/pets`,
@@ -102,7 +107,11 @@ async function createPet(app: FastifyInstance, cookie: string, clientId: string,
 	return res.json().id
 }
 
-async function createService(app: FastifyInstance, cookie: string, durationMinutes = 60): Promise<string> {
+async function createService(
+	app: FastifyInstance,
+	cookie: string,
+	durationMinutes = 60,
+): Promise<string> {
 	const res = await app.inject({
 		method: "POST",
 		url: "/services",
@@ -112,7 +121,13 @@ async function createService(app: FastifyInstance, cookie: string, durationMinut
 	return res.json().id
 }
 
-async function addPricing(app: FastifyInstance, cookie: string, serviceId: string, size = "medium", price = "80.00") {
+async function addPricing(
+	app: FastifyInstance,
+	cookie: string,
+	serviceId: string,
+	size = "medium",
+	price = "80.00",
+) {
 	await app.inject({
 		method: "PUT",
 		url: `/services/${serviceId}/pricing`,
@@ -351,7 +366,9 @@ describe("GET /appointments", () => {
 		})
 		expect(response.statusCode).toBe(200)
 		const body = response.json()
-		expect(body.data.every((a: { scheduledAt: string }) => a.scheduledAt.startsWith("2025-01-06"))).toBe(true)
+		expect(
+			body.data.every((a: { scheduledAt: string }) => a.scheduledAt.startsWith("2025-01-06")),
+		).toBe(true)
 	})
 
 	it("filters by status", async () => {
@@ -518,7 +535,11 @@ describe("PATCH /appointments/:id", () => {
 
 	it("returns 422 when updating a cancelled appointment", async () => {
 		// Cancel the appointment first
-		await app.inject({ method: "DELETE", url: `/appointments/${appointmentId}`, headers: { cookie } })
+		await app.inject({
+			method: "DELETE",
+			url: `/appointments/${appointmentId}`,
+			headers: { cookie },
+		})
 
 		const response = await app.inject({
 			method: "PATCH",
@@ -832,7 +853,10 @@ describe("collaborator authorization", () => {
 				.limit(1)
 
 			if (member) {
-				await db.update(tenantMembers).set({ role: "collaborator" }).where(eq(tenantMembers.id, member.id))
+				await db
+					.update(tenantMembers)
+					.set({ role: "collaborator" })
+					.where(eq(tenantMembers.id, member.id))
 			}
 			collaboratorCookie = ownerCookie
 		}

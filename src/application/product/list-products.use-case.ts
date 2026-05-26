@@ -1,7 +1,7 @@
 import { and, asc, eq, lte, sql } from "drizzle-orm"
+import type { ProductProps } from "../../domain/product/product.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { products } from "../../infra/database/drizzle/schema"
-import type { ProductProps } from "../../domain/product/product.entity"
 
 export interface ListProductsInput {
 	tenantId: string

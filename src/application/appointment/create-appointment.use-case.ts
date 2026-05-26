@@ -1,8 +1,15 @@
 import { and, eq, inArray } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { appointments, appointmentServices, clients, pets, services, servicePricing } from "../../infra/database/drizzle/schema"
-import { getAvailableSlots } from "../schedule/get-available-slots.use-case"
 import type { AppointmentProps, PaymentMethod } from "../../domain/appointment/appointment.entity"
+import { db } from "../../infra/database/drizzle/client"
+import {
+	appointmentServices,
+	appointments,
+	clients,
+	pets,
+	servicePricing,
+	services,
+} from "../../infra/database/drizzle/schema"
+import { getAvailableSlots } from "../schedule/get-available-slots.use-case"
 
 export class SlotUnavailableError extends Error {
 	constructor() {
@@ -38,7 +45,9 @@ export interface CreateAppointmentInput {
 	notes?: string
 }
 
-export async function createAppointment(input: CreateAppointmentInput): Promise<AppointmentProps & { services: { serviceId: string; price: string }[] }> {
+export async function createAppointment(
+	input: CreateAppointmentInput,
+): Promise<AppointmentProps & { services: { serviceId: string; price: string }[] }> {
 	const { tenantId, clientId, petId, scheduledAt, paymentMethod, serviceIds, notes } = input
 
 	const [client] = await db
@@ -78,7 +87,11 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
 	}
 
 	const pricingRows = await db
-		.select({ serviceId: servicePricing.serviceId, petSize: servicePricing.petSize, price: servicePricing.price })
+		.select({
+			serviceId: servicePricing.serviceId,
+			petSize: servicePricing.petSize,
+			price: servicePricing.price,
+		})
 		.from(servicePricing)
 		.where(inArray(servicePricing.serviceId, serviceIds))
 

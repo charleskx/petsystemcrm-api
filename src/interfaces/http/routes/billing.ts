@@ -1,12 +1,17 @@
-import type { FastifyInstance } from "fastify"
-import { z } from "zod/v4"
-import Stripe from "stripe"
 import { eq } from "drizzle-orm"
-import { authenticate } from "../middlewares/authenticate"
+import type { FastifyInstance } from "fastify"
+import Stripe from "stripe"
+import { z } from "zod/v4"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
 import { env } from "../../../main/config/env"
-import { errorSchema, notFoundSchema, unauthorizedSchema, unprocessableSchema } from "../schemas/shared"
+import { authenticate } from "../middlewares/authenticate"
+import {
+	errorSchema,
+	notFoundSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
+} from "../schemas/shared"
 
 function getStripe() {
 	if (!env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY não configurado")
@@ -28,7 +33,10 @@ export async function billingRoutes(app: FastifyInstance) {
 					200: {
 						type: "object",
 						properties: {
-							status: { type: "string", enum: ["trial", "active", "expired", "cancelled", "past_due"] },
+							status: {
+								type: "string",
+								enum: ["trial", "active", "expired", "cancelled", "past_due"],
+							},
 							plan: { type: "string", enum: ["essential", "premium"] },
 							trialEndsAt: { type: "string", format: "date-time", nullable: true },
 							stripeSubscriptionId: { type: "string", nullable: true },
@@ -90,11 +98,14 @@ export async function billingRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = z.object({ plan: planSchema }).safeParse(request.body)
 			if (!result.success) {
-				return reply.status(400).send({ error: "Plano inválido", details: z.treeifyError(result.error) })
+				return reply
+					.status(400)
+					.send({ error: "Plano inválido", details: z.treeifyError(result.error) })
 			}
 
 			const stripe = getStripe()
-			const priceId = result.data.plan === "premium" ? env.STRIPE_PRICE_PREMIUM : env.STRIPE_PRICE_ESSENTIAL
+			const priceId =
+				result.data.plan === "premium" ? env.STRIPE_PRICE_PREMIUM : env.STRIPE_PRICE_ESSENTIAL
 
 			if (!priceId) {
 				return reply.status(500).send({ error: "Plano não configurado no servidor" })
@@ -117,7 +128,10 @@ export async function billingRoutes(app: FastifyInstance) {
 					metadata: { tenantId: request.tenantId },
 				})
 				customerId = customer.id
-				await db.update(tenants).set({ stripeCustomerId: customerId }).where(eq(tenants.id, request.tenantId))
+				await db
+					.update(tenants)
+					.set({ stripeCustomerId: customerId })
+					.where(eq(tenants.id, request.tenantId))
 			}
 
 			const session = await stripe.checkout.sessions.create({
@@ -196,7 +210,9 @@ export async function billingRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = z.object({ plan: planSchema }).safeParse(request.body)
 			if (!result.success) {
-				return reply.status(400).send({ error: "Plano inválido", details: z.treeifyError(result.error) })
+				return reply
+					.status(400)
+					.send({ error: "Plano inválido", details: z.treeifyError(result.error) })
 			}
 
 			const tenant = await db

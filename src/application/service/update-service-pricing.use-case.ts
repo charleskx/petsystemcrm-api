@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { services, servicePricing } from "../../infra/database/drizzle/schema"
-import type { ServicePricingProps } from "../../domain/service/service-pricing.entity"
 import type { PetSize } from "../../domain/pet/pet.entity"
+import type { ServicePricingProps } from "../../domain/service/service-pricing.entity"
+import { db } from "../../infra/database/drizzle/client"
+import { servicePricing, services } from "../../infra/database/drizzle/schema"
 import { ServiceNotFoundError } from "./get-service.use-case"
 
 export { ServiceNotFoundError }

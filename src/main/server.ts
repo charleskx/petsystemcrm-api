@@ -1,28 +1,28 @@
-import Fastify from "fastify"
+import cookie from "@fastify/cookie"
 import cors from "@fastify/cors"
 import helmet from "@fastify/helmet"
-import rateLimit from "@fastify/rate-limit"
-import cookie from "@fastify/cookie"
 import multipart from "@fastify/multipart"
+import rateLimit from "@fastify/rate-limit"
 import swagger from "@fastify/swagger"
 import swaggerUi from "@fastify/swagger-ui"
-import { env } from "./config/env"
-import { authRoutes } from "../interfaces/http/routes/auth"
-import { healthRoutes } from "../interfaces/http/routes/health"
-import { tenantsRoutes } from "../interfaces/http/routes/tenants"
-import { clientsRoutes } from "../interfaces/http/routes/clients"
-import { membersRoutes } from "../interfaces/http/routes/members"
-import { petsRoutes } from "../interfaces/http/routes/pets"
-import { servicesRoutes } from "../interfaces/http/routes/services"
-import { scheduleRoutes } from "../interfaces/http/routes/schedule"
+import Fastify from "fastify"
 import { appointmentsRoutes } from "../interfaces/http/routes/appointments"
+import { authRoutes } from "../interfaces/http/routes/auth"
+import { billingRoutes } from "../interfaces/http/routes/billing"
+import { clientsRoutes } from "../interfaces/http/routes/clients"
+import { dashboardRoutes } from "../interfaces/http/routes/dashboard"
+import { healthRoutes } from "../interfaces/http/routes/health"
+import { membersRoutes } from "../interfaces/http/routes/members"
+import { paymentsRoutes } from "../interfaces/http/routes/payments"
+import { petsRoutes } from "../interfaces/http/routes/pets"
 import { productsRoutes } from "../interfaces/http/routes/products"
+import { salesRoutes } from "../interfaces/http/routes/sales"
+import { scheduleRoutes } from "../interfaces/http/routes/schedule"
+import { servicesRoutes } from "../interfaces/http/routes/services"
 import { stockRoutes } from "../interfaces/http/routes/stock"
 import { suppliersRoutes } from "../interfaces/http/routes/suppliers"
-import { salesRoutes } from "../interfaces/http/routes/sales"
-import { billingRoutes } from "../interfaces/http/routes/billing"
-import { paymentsRoutes } from "../interfaces/http/routes/payments"
-import { dashboardRoutes } from "../interfaces/http/routes/dashboard"
+import { tenantsRoutes } from "../interfaces/http/routes/tenants"
+import { env } from "./config/env"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -35,7 +35,10 @@ export async function buildApp() {
 		origin: env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()),
 		credentials: true,
 	})
-	await app.register(rateLimit, { max: env.NODE_ENV === "test" ? 10000 : 100, timeWindow: "1 minute" })
+	await app.register(rateLimit, {
+		max: env.NODE_ENV === "test" ? 10000 : 100,
+		timeWindow: "1 minute",
+	})
 
 	// Cookie support required by better-auth
 	await app.register(cookie)
@@ -46,7 +49,11 @@ export async function buildApp() {
 	// OpenAPI docs
 	await app.register(swagger, {
 		openapi: {
-			info: { title: "PetSystem CRM API", version: "1.0.0", description: "Multi-tenant pet shop management API" },
+			info: {
+				title: "PetSystem CRM API",
+				version: "1.0.0",
+				description: "Multi-tenant pet shop management API",
+			},
 			servers: [{ url: env.API_URL || "http://localhost:3333", description: "API Server" }],
 			tags: [
 				{ name: "Health", description: "Health check" },
@@ -66,7 +73,11 @@ export async function buildApp() {
 				{ name: "Payments", description: "Payment webhooks" },
 				{ name: "Dashboard", description: "Tenant dashboard metrics" },
 			],
-			components: { securitySchemes: { cookieAuth: { type: "apiKey", in: "cookie", name: "better-auth.session_token" } } },
+			components: {
+				securitySchemes: {
+					cookieAuth: { type: "apiKey", in: "cookie", name: "better-auth.session_token" },
+				},
+			},
 		},
 	})
 	await app.register(swaggerUi, { routePrefix: "/documentation" })

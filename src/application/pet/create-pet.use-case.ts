@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { PetProps, PetSize } from "../../domain/pet/pet.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { clients, pets } from "../../infra/database/drizzle/schema"
-import type { PetProps, PetSize } from "../../domain/pet/pet.entity"
 
 export class ClientNotFoundError extends Error {
 	constructor() {
@@ -26,7 +26,13 @@ export async function createPet(input: CreatePetInput): Promise<PetProps> {
 	const [client] = await db
 		.select({ id: clients.id })
 		.from(clients)
-		.where(and(eq(clients.id, input.clientId), eq(clients.tenantId, input.tenantId), eq(clients.active, true)))
+		.where(
+			and(
+				eq(clients.id, input.clientId),
+				eq(clients.tenantId, input.tenantId),
+				eq(clients.active, true),
+			),
+		)
 		.limit(1)
 
 	if (!client) {

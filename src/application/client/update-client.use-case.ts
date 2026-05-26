@@ -1,10 +1,10 @@
 import { and, eq } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { clients } from "../../infra/database/drizzle/schema"
 import type { ClientProps } from "../../domain/client/client.entity"
 import { validateCPF } from "../../domain/shared/document.validator"
-import { ClientNotFoundError } from "./get-client.use-case"
+import { db } from "../../infra/database/drizzle/client"
+import { clients } from "../../infra/database/drizzle/schema"
 import { InvalidDocumentError } from "./create-client.use-case"
+import { ClientNotFoundError } from "./get-client.use-case"
 
 export interface UpdateClientInput {
 	id: string

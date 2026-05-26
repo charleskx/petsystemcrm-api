@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { sales, saleItems } from "../../infra/database/drizzle/schema"
 import type { SaleProps } from "../../domain/sale/sale.entity"
 import type { SaleItemProps } from "../../domain/sale/sale-item.entity"
+import { db } from "../../infra/database/drizzle/client"
+import { saleItems, sales } from "../../infra/database/drizzle/schema"
 
 export class SaleNotFoundError extends Error {
 	constructor() {

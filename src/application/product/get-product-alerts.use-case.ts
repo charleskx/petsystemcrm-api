@@ -1,7 +1,7 @@
 import { and, eq, lte, or, sql } from "drizzle-orm"
+import type { ProductProps } from "../../domain/product/product.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { products } from "../../infra/database/drizzle/schema"
-import type { ProductProps } from "../../domain/product/product.entity"
 
 export type AlertType = "low_stock" | "near_expiry"
 
@@ -22,10 +22,7 @@ export async function getProductAlerts(tenantId: string): Promise<ProductAlert[]
 				eq(products.active, true),
 				or(
 					lte(products.quantity, sql`${products.minQuantity}`),
-					and(
-						sql`${products.expiryDate} IS NOT NULL`,
-						lte(products.expiryDate, thirtyDaysFromNow),
-					),
+					and(sql`${products.expiryDate} IS NOT NULL`, lte(products.expiryDate, thirtyDaysFromNow)),
 				),
 			),
 		)

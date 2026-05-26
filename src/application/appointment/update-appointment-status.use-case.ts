@@ -1,7 +1,10 @@
 import { and, eq } from "drizzle-orm"
+import type {
+	AppointmentProps,
+	AppointmentStatus,
+} from "../../domain/appointment/appointment.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { appointments } from "../../infra/database/drizzle/schema"
-import type { AppointmentProps, AppointmentStatus } from "../../domain/appointment/appointment.entity"
 import { AppointmentNotFoundError } from "./get-appointment.use-case"
 
 export class InvalidStatusTransitionError extends Error {
@@ -23,7 +26,9 @@ export interface UpdateAppointmentStatusInput {
 	status: AppointmentStatus
 }
 
-export async function updateAppointmentStatus(input: UpdateAppointmentStatusInput): Promise<AppointmentProps> {
+export async function updateAppointmentStatus(
+	input: UpdateAppointmentStatusInput,
+): Promise<AppointmentProps> {
 	const { id, tenantId, status } = input
 
 	const [appointment] = await db

@@ -1,5 +1,5 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import type { Readable } from "node:stream"
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { env } from "../../main/config/env"
 
 function getClient(): S3Client {
@@ -13,7 +13,11 @@ function getClient(): S3Client {
 	})
 }
 
-export async function uploadToR2(key: string, stream: Readable, contentType: string): Promise<string> {
+export async function uploadToR2(
+	key: string,
+	stream: Readable,
+	contentType: string,
+): Promise<string> {
 	const client = getClient()
 	await client.send(
 		new PutObjectCommand({

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ServiceProps } from "../../domain/service/service.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { services } from "../../infra/database/drizzle/schema"
-import type { ServiceProps } from "../../domain/service/service.entity"
 
 export class ServiceNotFoundError extends Error {
 	constructor() {

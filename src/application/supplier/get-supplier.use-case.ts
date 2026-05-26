@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { suppliers } from "../../infra/database/drizzle/schema"
-import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 
 export class SupplierNotFoundError extends Error {
 	constructor() {

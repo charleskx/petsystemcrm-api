@@ -1,18 +1,21 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
+import { ClientNotFoundError, createPet } from "../../../application/pet/create-pet.use-case"
+import { deletePet } from "../../../application/pet/delete-pet.use-case"
+import { getPet, PetNotFoundError } from "../../../application/pet/get-pet.use-case"
+import { listPets } from "../../../application/pet/list-pets.use-case"
+import { updatePet } from "../../../application/pet/update-pet.use-case"
+import {
+	InvalidPhotoError,
+	uploadPetPhoto,
+} from "../../../application/pet/upload-pet-photo.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { createPet, ClientNotFoundError } from "../../../application/pet/create-pet.use-case"
-import { listPets } from "../../../application/pet/list-pets.use-case"
-import { getPet, PetNotFoundError } from "../../../application/pet/get-pet.use-case"
-import { updatePet } from "../../../application/pet/update-pet.use-case"
-import { deletePet } from "../../../application/pet/delete-pet.use-case"
-import { uploadPetPhoto, InvalidPhotoError } from "../../../application/pet/upload-pet-photo.use-case"
 import {
 	notFoundSchema,
+	paymentRequiredSchema,
 	unauthorizedSchema,
 	unprocessableSchema,
-	paymentRequiredSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
@@ -24,7 +27,10 @@ const createPetBody = z.object({
 	species: z.string().min(1).max(100),
 	breed: z.string().max(100).optional(),
 	birthDate: z.iso.date().optional(),
-	weight: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
+	weight: z
+		.string()
+		.regex(/^\d+(\.\d{1,2})?$/)
+		.optional(),
 	size: petSizeEnum.optional(),
 	notes: z.string().optional(),
 })

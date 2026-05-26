@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
+import { eq, inArray } from "drizzle-orm"
 import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
-import { eq, inArray } from "drizzle-orm"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs unique to this test file (computed with correct check digits)
 const CNPJ_SUBSCRIPTION = "72000000001093"
@@ -296,7 +296,10 @@ describe("subscription guard — cancelled tenant", () => {
 	it("returns 402 on operational route when subscription is cancelled", async () => {
 		const { cookie, tenantId } = await createTenantAndLogin({ document: CNPJ_GUARD_CANCELLED })
 
-		await db.update(tenants).set({ subscriptionStatus: "cancelled" }).where(eq(tenants.id, tenantId))
+		await db
+			.update(tenants)
+			.set({ subscriptionStatus: "cancelled" })
+			.where(eq(tenants.id, tenantId))
 
 		const response = await app.inject({
 			method: "GET",
@@ -310,7 +313,9 @@ describe("subscription guard — cancelled tenant", () => {
 
 describe("subscription guard — essential plan blocks premium routes", () => {
 	it("returns 403 on /suppliers for active essential tenant", async () => {
-		const { cookie, tenantId } = await createTenantAndLogin({ document: CNPJ_GUARD_ESSENTIAL_SUPPLIERS })
+		const { cookie, tenantId } = await createTenantAndLogin({
+			document: CNPJ_GUARD_ESSENTIAL_SUPPLIERS,
+		})
 
 		await db
 			.update(tenants)
@@ -327,7 +332,9 @@ describe("subscription guard — essential plan blocks premium routes", () => {
 	})
 
 	it("returns 403 on /sales for active essential tenant", async () => {
-		const { cookie, tenantId } = await createTenantAndLogin({ document: CNPJ_GUARD_ESSENTIAL_SALES })
+		const { cookie, tenantId } = await createTenantAndLogin({
+			document: CNPJ_GUARD_ESSENTIAL_SALES,
+		})
 
 		await db
 			.update(tenants)

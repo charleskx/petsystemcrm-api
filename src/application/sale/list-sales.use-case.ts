@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gte, lte } from "drizzle-orm"
+import type { SaleProps, SaleStatus } from "../../domain/sale/sale.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { sales } from "../../infra/database/drizzle/schema"
-import type { SaleProps, SaleStatus } from "../../domain/sale/sale.entity"
 
 export interface ListSalesInput {
 	tenantId: string

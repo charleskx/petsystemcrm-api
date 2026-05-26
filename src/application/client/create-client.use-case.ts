@@ -1,7 +1,7 @@
-import { db } from "../../infra/database/drizzle/client"
-import { clients } from "../../infra/database/drizzle/schema"
 import type { ClientProps } from "../../domain/client/client.entity"
 import { validateCPF } from "../../domain/shared/document.validator"
+import { db } from "../../infra/database/drizzle/client"
+import { clients } from "../../infra/database/drizzle/schema"
 
 export interface CreateClientInput {
 	tenantId: string

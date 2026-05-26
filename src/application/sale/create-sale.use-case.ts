@@ -1,8 +1,8 @@
 import { and, eq, sql } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { products, sales, saleItems, stockMovements } from "../../infra/database/drizzle/schema"
 import type { SaleChannel, SalePaymentMethod, SaleProps } from "../../domain/sale/sale.entity"
 import type { SaleItemProps } from "../../domain/sale/sale-item.entity"
+import { db } from "../../infra/database/drizzle/client"
+import { products, saleItems, sales, stockMovements } from "../../infra/database/drizzle/schema"
 
 export class ProductNotFoundError extends Error {
 	constructor(public readonly productId: string) {
@@ -61,7 +61,11 @@ export async function createSale(input: CreateSaleInput): Promise<CreateSaleOutp
 
 			const unitPrice = Number(product.salePrice)
 			totalAmount += unitPrice * item.quantity
-			resolvedItems.push({ productId: item.productId, quantity: item.quantity, unitPrice: product.salePrice })
+			resolvedItems.push({
+				productId: item.productId,
+				quantity: item.quantity,
+				unitPrice: product.salePrice,
+			})
 		}
 
 		const [sale] = await tx

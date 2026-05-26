@@ -1,12 +1,15 @@
 import { and, eq } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { services, servicePricing } from "../../infra/database/drizzle/schema"
 import type { ServicePricingProps } from "../../domain/service/service-pricing.entity"
+import { db } from "../../infra/database/drizzle/client"
+import { servicePricing, services } from "../../infra/database/drizzle/schema"
 import { ServiceNotFoundError } from "./get-service.use-case"
 
 export { ServiceNotFoundError }
 
-export async function getServicePricing(serviceId: string, tenantId: string): Promise<ServicePricingProps[]> {
+export async function getServicePricing(
+	serviceId: string,
+	tenantId: string,
+): Promise<ServicePricingProps[]> {
 	const [service] = await db
 		.select({ id: services.id })
 		.from(services)
@@ -17,10 +20,7 @@ export async function getServicePricing(serviceId: string, tenantId: string): Pr
 		throw new ServiceNotFoundError()
 	}
 
-	const rows = await db
-		.select()
-		.from(servicePricing)
-		.where(eq(servicePricing.serviceId, serviceId))
+	const rows = await db.select().from(servicePricing).where(eq(servicePricing.serviceId, serviceId))
 
 	return rows as ServicePricingProps[]
 }

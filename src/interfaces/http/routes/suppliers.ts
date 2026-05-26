@@ -1,23 +1,29 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { authenticate } from "../middlewares/authenticate"
-import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { premiumGuard } from "../middlewares/premium-guard"
-import { listSuppliers } from "../../../application/supplier/list-suppliers.use-case"
-import { createSupplier, InvalidDocumentError } from "../../../application/supplier/create-supplier.use-case"
-import { getSupplier, SupplierNotFoundError } from "../../../application/supplier/get-supplier.use-case"
-import { updateSupplier } from "../../../application/supplier/update-supplier.use-case"
+import {
+	createSupplier,
+	InvalidDocumentError,
+} from "../../../application/supplier/create-supplier.use-case"
 import {
 	deactivateSupplier,
 	SupplierAlreadyInactiveError,
 } from "../../../application/supplier/deactivate-supplier.use-case"
 import {
+	getSupplier,
+	SupplierNotFoundError,
+} from "../../../application/supplier/get-supplier.use-case"
+import { listSuppliers } from "../../../application/supplier/list-suppliers.use-case"
+import { updateSupplier } from "../../../application/supplier/update-supplier.use-case"
+import { authenticate } from "../middlewares/authenticate"
+import { premiumGuard } from "../middlewares/premium-guard"
+import { subscriptionGuard } from "../middlewares/subscription-guard"
+import {
 	errorSchema,
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard, premiumGuard]
@@ -86,7 +92,9 @@ export async function suppliersRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = listSuppliersQuery.safeParse(request.query)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const output = await listSuppliers({ tenantId: request.tenantId, ...result.data })
@@ -132,7 +140,9 @@ export async function suppliersRoutes(app: FastifyInstance) {
 
 			const result = createSupplierBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
@@ -228,7 +238,9 @@ export async function suppliersRoutes(app: FastifyInstance) {
 			const { id } = request.params as { id: string }
 			const result = updateSupplierBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {

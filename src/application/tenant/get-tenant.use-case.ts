@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm"
+import type { TenantProps } from "../../domain/tenant/tenant.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { tenants } from "../../infra/database/drizzle/schema"
-import type { TenantProps } from "../../domain/tenant/tenant.entity"
 
 export class TenantNotFoundError extends Error {
 	constructor() {

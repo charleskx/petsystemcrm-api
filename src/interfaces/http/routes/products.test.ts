@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
-import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantMembers } from "../../../infra/database/drizzle/schema"
 import { and, eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { db } from "../../../infra/database/drizzle/client"
+import { tenantMembers, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs — unique to this file, non-conflicting with other test files
 // Computed via CNPJ check-digit algorithm in src/domain/shared/document.validator.ts
@@ -418,7 +418,10 @@ describe("role authorization on /products/categories", () => {
 
 			if (member) {
 				memberId = member.id
-				await db.update(tenantMembers).set({ role: "collaborator" }).where(eq(tenantMembers.id, member.id))
+				await db
+					.update(tenantMembers)
+					.set({ role: "collaborator" })
+					.where(eq(tenantMembers.id, member.id))
 			}
 		}
 	})

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { PetProps, PetSize } from "../../domain/pet/pet.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { pets } from "../../infra/database/drizzle/schema"
-import type { PetProps, PetSize } from "../../domain/pet/pet.entity"
 import { PetNotFoundError } from "./get-pet.use-case"
 
 export { PetNotFoundError }

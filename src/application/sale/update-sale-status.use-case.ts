@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { SaleProps, SaleStatus } from "../../domain/sale/sale.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { sales } from "../../infra/database/drizzle/schema"
-import type { SaleProps, SaleStatus } from "../../domain/sale/sale.entity"
 
 export class SaleNotFoundError extends Error {
 	constructor() {
@@ -15,7 +15,11 @@ export class InvalidSaleStatusTransitionError extends Error {
 	}
 }
 
-export async function updateSaleStatus(id: string, tenantId: string, status: SaleStatus): Promise<SaleProps> {
+export async function updateSaleStatus(
+	id: string,
+	tenantId: string,
+	status: SaleStatus,
+): Promise<SaleProps> {
 	const [sale] = await db
 		.select()
 		.from(sales)

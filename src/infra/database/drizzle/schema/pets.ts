@@ -1,6 +1,6 @@
-import { pgEnum, pgTable, text, timestamp, varchar, numeric } from "drizzle-orm/pg-core"
-import { tenants } from "./tenants"
+import { numeric, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core"
 import { clients } from "./clients"
+import { tenants } from "./tenants"
 
 export const petSizeEnum = pgEnum("pet_size", ["small", "medium", "large", "extra_large"])
 

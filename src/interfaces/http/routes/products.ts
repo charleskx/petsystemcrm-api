@@ -1,48 +1,48 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { authenticate } from "../middlewares/authenticate"
-import { subscriptionGuard } from "../middlewares/subscription-guard"
-import {
-	createProductCategory,
-	DuplicateCategoryNameError,
-} from "../../../application/product/create-product-category.use-case"
-import { listProductCategories } from "../../../application/product/list-product-categories.use-case"
-import {
-	updateProductCategory,
-	CategoryNotFoundError as UpdateCategoryNotFoundError,
-	DuplicateCategoryNameError as UpdateDuplicateCategoryNameError,
-} from "../../../application/product/update-product-category.use-case"
-import {
-	deleteProductCategory,
-	CategoryNotFoundError as DeleteCategoryNotFoundError,
-	CategoryHasProductsError,
-} from "../../../application/product/delete-product-category.use-case"
 import {
 	createProduct,
 	InvalidCategoryError,
 	InvalidSupplierError,
 } from "../../../application/product/create-product.use-case"
-import { listProducts } from "../../../application/product/list-products.use-case"
-import { getProduct, ProductNotFoundError } from "../../../application/product/get-product.use-case"
 import {
-	updateProduct,
-	ProductNotFoundError as UpdateProductNotFoundError,
-	InvalidCategoryError as UpdateInvalidCategoryError,
-	InvalidSupplierError as UpdateInvalidSupplierError,
-} from "../../../application/product/update-product.use-case"
+	createProductCategory,
+	DuplicateCategoryNameError,
+} from "../../../application/product/create-product-category.use-case"
 import {
-	deactivateProduct,
 	ProductNotFoundError as DeactivateProductNotFoundError,
+	deactivateProduct,
 	ProductAlreadyInactiveError,
 } from "../../../application/product/deactivate-product.use-case"
+import {
+	CategoryHasProductsError,
+	CategoryNotFoundError as DeleteCategoryNotFoundError,
+	deleteProductCategory,
+} from "../../../application/product/delete-product-category.use-case"
+import { getProduct, ProductNotFoundError } from "../../../application/product/get-product.use-case"
 import { getProductAlerts } from "../../../application/product/get-product-alerts.use-case"
+import { listProductCategories } from "../../../application/product/list-product-categories.use-case"
+import { listProducts } from "../../../application/product/list-products.use-case"
+import {
+	InvalidCategoryError as UpdateInvalidCategoryError,
+	InvalidSupplierError as UpdateInvalidSupplierError,
+	ProductNotFoundError as UpdateProductNotFoundError,
+	updateProduct,
+} from "../../../application/product/update-product.use-case"
+import {
+	CategoryNotFoundError as UpdateCategoryNotFoundError,
+	DuplicateCategoryNameError as UpdateDuplicateCategoryNameError,
+	updateProductCategory,
+} from "../../../application/product/update-product-category.use-case"
+import { authenticate } from "../middlewares/authenticate"
+import { subscriptionGuard } from "../middlewares/subscription-guard"
 import {
 	errorSchema,
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
@@ -71,8 +71,14 @@ const updateProductBody = z.object({
 	categoryId: z.string().nullable().optional(),
 	supplierId: z.string().nullable().optional(),
 	unitType: unitTypeEnum.optional(),
-	costPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Preço inválido").optional(),
-	marginPercent: z.string().regex(/^\d+(\.\d{1,2})?$/, "Margem inválida").optional(),
+	costPrice: z
+		.string()
+		.regex(/^\d+(\.\d{1,2})?$/, "Preço inválido")
+		.optional(),
+	marginPercent: z
+		.string()
+		.regex(/^\d+(\.\d{1,2})?$/, "Margem inválida")
+		.optional(),
 	minQuantity: z.number().int().min(0).optional(),
 	expiryDate: z.string().datetime({ local: false }).nullable().optional(),
 })
@@ -120,7 +126,9 @@ export async function productsRoutes(app: FastifyInstance) {
 
 			const result = z.object({ name: z.string().min(1).max(255) }).safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
@@ -192,7 +200,9 @@ export async function productsRoutes(app: FastifyInstance) {
 			const { id } = request.params as { id: string }
 			const result = z.object({ name: z.string().min(1).max(255) }).safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
@@ -296,7 +306,9 @@ export async function productsRoutes(app: FastifyInstance) {
 
 			const result = createProductBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const { expiryDate, ...rest } = result.data
@@ -367,7 +379,9 @@ export async function productsRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = listProductsQuery.safeParse(request.query)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const productsList = await listProducts({ tenantId: request.tenantId, ...result.data })
@@ -457,7 +471,9 @@ export async function productsRoutes(app: FastifyInstance) {
 			const { id } = request.params as { id: string }
 			const result = updateProductBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const { expiryDate, ...rest } = result.data
@@ -467,14 +483,18 @@ export async function productsRoutes(app: FastifyInstance) {
 					id,
 					tenantId: request.tenantId,
 					...rest,
-					expiryDate: expiryDate === undefined ? undefined : expiryDate ? new Date(expiryDate) : null,
+					expiryDate:
+						expiryDate === undefined ? undefined : expiryDate ? new Date(expiryDate) : null,
 				})
 				return reply.send(product)
 			} catch (error) {
 				if (error instanceof UpdateProductNotFoundError) {
 					return reply.status(404).send({ error: error.message })
 				}
-				if (error instanceof UpdateInvalidCategoryError || error instanceof UpdateInvalidSupplierError) {
+				if (
+					error instanceof UpdateInvalidCategoryError ||
+					error instanceof UpdateInvalidSupplierError
+				) {
 					return reply.status(422).send({ error: error.message })
 				}
 				throw error

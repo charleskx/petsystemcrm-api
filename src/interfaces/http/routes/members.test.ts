@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
 import { eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenantInvitations, tenantMembers } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs — unique to this file, non-conflicting with other test files
 // Computed via CNPJ check-digit algorithm in src/domain/shared/document.validator.ts
@@ -19,7 +19,7 @@ const CNPJ_ROLE_NONOWNER = "22320000000292"
 const CNPJ_REMOVE = "77070000000788"
 const CNPJ_REMOVE_COLLAB = "33430000000342"
 const CNPJ_REMOVE_NONOWNER = "44540000000400"
-const CNPJ_WRONG_TENANT = "88080000000866"
+const _CNPJ_WRONG_TENANT = "88080000000866"
 const CNPJ_WRONG_TENANT_OTHER = "55650000000552"
 
 const PASSWORD = "senha1234"
@@ -86,7 +86,7 @@ afterAll(async () => {
 describe("GET /tenants/:tenantId/members", () => {
 	let cookie: string
 	let tenantId: string
-	let otherCookie: string
+	let _otherCookie: string
 	let otherTenantId: string
 
 	beforeAll(async () => {
@@ -95,7 +95,7 @@ describe("GET /tenants/:tenantId/members", () => {
 		tenantId = owner.tenantId
 
 		const other = await createTenantAndLogin({ document: CNPJ_WRONG_TENANT_OTHER })
-		otherCookie = other.cookie
+		_otherCookie = other.cookie
 		otherTenantId = other.tenantId
 	})
 
@@ -337,7 +337,7 @@ describe("POST /tenants/:tenantId/members/accept-invite", () => {
 describe("PATCH /tenants/:tenantId/members/:userId", () => {
 	let tenantId: string
 	let ownerCookie: string
-	let ownerUserId: string
+	let _ownerUserId: string
 	let collabUserId: string
 	let nonOwnerCookie: string
 
@@ -345,7 +345,7 @@ describe("PATCH /tenants/:tenantId/members/:userId", () => {
 		const owner = await createTenantAndLogin({ document: CNPJ_ROLE_UPDATE })
 		tenantId = owner.tenantId
 		ownerCookie = owner.cookie
-		ownerUserId = owner.userId
+		_ownerUserId = owner.userId
 
 		// Create a collaborator via another tenant then invite
 		const collabEmail = `role-collab+${Date.now()}@test.com`

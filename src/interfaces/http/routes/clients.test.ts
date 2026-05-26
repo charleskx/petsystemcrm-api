@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
+import { eq } from "drizzle-orm"
 import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
-import { eq } from "drizzle-orm"
+import { buildApp } from "../../../main/server"
 
 let app: FastifyInstance
 
@@ -221,7 +221,9 @@ describe("GET /clients", () => {
 		expect(response.statusCode).toBe(200)
 		const body = response.json()
 		expect(body.data.length).toBeGreaterThan(0)
-		expect(body.data.every((c: { name: string }) => c.name.toLowerCase().includes("rex"))).toBe(true)
+		expect(body.data.every((c: { name: string }) => c.name.toLowerCase().includes("rex"))).toBe(
+			true,
+		)
 	})
 
 	it("respects tenant isolation", async () => {

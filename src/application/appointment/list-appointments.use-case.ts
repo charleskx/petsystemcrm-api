@@ -1,7 +1,10 @@
 import { and, desc, eq, gte, lt } from "drizzle-orm"
+import type {
+	AppointmentProps,
+	AppointmentStatus,
+} from "../../domain/appointment/appointment.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { appointments } from "../../infra/database/drizzle/schema"
-import type { AppointmentProps, AppointmentStatus } from "../../domain/appointment/appointment.entity"
 
 export interface ListAppointmentsInput {
 	tenantId: string
@@ -20,7 +23,9 @@ export interface ListAppointmentsOutput {
 	limit: number
 }
 
-export async function listAppointments(input: ListAppointmentsInput): Promise<ListAppointmentsOutput> {
+export async function listAppointments(
+	input: ListAppointmentsInput,
+): Promise<ListAppointmentsOutput> {
 	const { tenantId, date, status, clientId, petId } = input
 	const page = input.page ?? 1
 	const limit = input.limit ?? 20

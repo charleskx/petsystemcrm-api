@@ -12,9 +12,7 @@ export interface InviteMemberInput {
 	role: "owner" | "financial" | "collaborator"
 }
 
-export type InviteMemberOutput =
-	| { status: "added"; userId: string }
-	| { status: "invited" }
+export type InviteMemberOutput = { status: "added"; userId: string } | { status: "invited" }
 
 export class MemberAlreadyExistsError extends Error {
 	constructor() {

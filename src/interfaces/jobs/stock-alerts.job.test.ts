@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("../../infra/database/drizzle/client", () => ({
 	db: {
@@ -14,8 +14,8 @@ vi.mock("../../infra/email/resend", () => ({
 	getResend: vi.fn(),
 }))
 
-import { db } from "../../infra/database/drizzle/client"
 import { getProductAlerts } from "../../application/product/get-product-alerts.use-case"
+import { db } from "../../infra/database/drizzle/client"
 import { getResend } from "../../infra/email/resend"
 import { runStockAlertsJob } from "./stock-alerts.job"
 
@@ -42,7 +42,14 @@ describe("runStockAlertsJob", () => {
 	it("envia e-mail ao owner quando tenant tem produtos em alerta", async () => {
 		const tenantList = [{ id: "tenant-1", name: "Petshop do João" }]
 		const alerts = [
-			{ id: "p1", name: "Ração", quantity: 2, minQuantity: 5, expiryDate: null, alertTypes: ["low_stock"] },
+			{
+				id: "p1",
+				name: "Ração",
+				quantity: 2,
+				minQuantity: 5,
+				expiryDate: null,
+				alertTypes: ["low_stock"],
+			},
 		]
 		const ownerRow = [{ email: "joao@petshop.com", name: "João" }]
 
@@ -102,7 +109,14 @@ describe("runStockAlertsJob", () => {
 			{ id: "tenant-2", name: "Petshop 2" },
 		]
 		const alert = [
-			{ id: "p1", name: "Ração", quantity: 1, minQuantity: 10, expiryDate: null, alertTypes: ["low_stock"] },
+			{
+				id: "p1",
+				name: "Ração",
+				quantity: 1,
+				minQuantity: 10,
+				expiryDate: null,
+				alertTypes: ["low_stock"],
+			},
 		]
 		const ownerRow = [{ email: "owner@petshop.com", name: "Owner" }]
 

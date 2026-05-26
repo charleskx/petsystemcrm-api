@@ -1,19 +1,28 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { authenticate } from "../middlewares/authenticate"
-import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { premiumGuard } from "../middlewares/premium-guard"
-import { createSale, ProductNotFoundError, ProductInactiveError, InsufficientStockError } from "../../../application/sale/create-sale.use-case"
-import { listSales } from "../../../application/sale/list-sales.use-case"
+import {
+	createSale,
+	InsufficientStockError,
+	ProductInactiveError,
+	ProductNotFoundError,
+} from "../../../application/sale/create-sale.use-case"
 import { getSale, SaleNotFoundError } from "../../../application/sale/get-sale.use-case"
-import { updateSaleStatus, InvalidSaleStatusTransitionError, SaleNotFoundError as UpdateSaleNotFoundError } from "../../../application/sale/update-sale-status.use-case"
+import { listSales } from "../../../application/sale/list-sales.use-case"
+import {
+	InvalidSaleStatusTransitionError,
+	SaleNotFoundError as UpdateSaleNotFoundError,
+	updateSaleStatus,
+} from "../../../application/sale/update-sale-status.use-case"
+import { authenticate } from "../middlewares/authenticate"
+import { premiumGuard } from "../middlewares/premium-guard"
+import { subscriptionGuard } from "../middlewares/subscription-guard"
 import {
 	errorSchema,
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard, premiumGuard]
@@ -77,7 +86,9 @@ export async function salesRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = listSalesQuery.safeParse(request.query)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const { from, to, ...rest } = result.data
@@ -133,7 +144,9 @@ export async function salesRoutes(app: FastifyInstance) {
 
 			const result = createSaleBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
@@ -226,7 +239,9 @@ export async function salesRoutes(app: FastifyInstance) {
 			const { id } = request.params as { id: string }
 			const result = updateSaleStatusBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {

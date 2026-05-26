@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
-import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantInvitations } from "../../../infra/database/drizzle/schema"
 import { eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { db } from "../../../infra/database/drizzle/client"
+import { tenantInvitations, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 let app: FastifyInstance
 
@@ -59,7 +59,7 @@ async function createTenantAndLogin(
 	return { cookie, tenantId }
 }
 
-async function addCollaborator(
+async function _addCollaborator(
 	app: FastifyInstance,
 	ownerCookie: string,
 	tenantId: string,
@@ -97,14 +97,14 @@ afterAll(async () => {
 
 describe("POST /services", () => {
 	let cookie: string
-	let otherCookie: string
+	let _otherCookie: string
 
 	beforeAll(async () => {
 		const result = await createTenantAndLogin(app, { document: CNPJ_CREATE })
 		cookie = result.cookie
 
 		const other = await createTenantAndLogin(app, { document: CNPJ_CREATE_OTHER })
-		otherCookie = other.cookie
+		_otherCookie = other.cookie
 	})
 
 	it("creates service and returns 201", async () => {

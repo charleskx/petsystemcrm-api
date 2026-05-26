@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
+import { and, eq } from "drizzle-orm"
 import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantMembers, tenantInvitations } from "../../../infra/database/drizzle/schema"
-import { eq, and } from "drizzle-orm"
+import { tenantInvitations, tenantMembers, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs unique to this test file
 const CNPJ_LIST = "93001101100111"
@@ -424,7 +424,9 @@ describe("role authorization on /suppliers", () => {
 		const invRecord = await db
 			.select()
 			.from(tenantInvitations)
-			.where(and(eq(tenantInvitations.tenantId, tenantId), eq(tenantInvitations.email, financialEmail)))
+			.where(
+				and(eq(tenantInvitations.tenantId, tenantId), eq(tenantInvitations.email, financialEmail)),
+			)
 			.limit(1)
 			.then((rows) => rows[0])
 
@@ -453,7 +455,10 @@ describe("role authorization on /suppliers", () => {
 			.limit(1)
 
 		if (member) {
-			await db.update(tenantMembers).set({ role: "financial" }).where(eq(tenantMembers.id, member.id))
+			await db
+				.update(tenantMembers)
+				.set({ role: "financial" })
+				.where(eq(tenantMembers.id, member.id))
 		}
 	})
 

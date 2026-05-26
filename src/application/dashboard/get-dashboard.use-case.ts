@@ -1,8 +1,8 @@
 import { and, asc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm"
 import { db } from "../../infra/database/drizzle/client"
 import {
-	appointments,
 	appointmentServices,
+	appointments,
 	clients,
 	pets,
 	products,
@@ -17,7 +17,12 @@ export interface DashboardInput {
 	trialEndsAt: Date | null
 }
 
-export async function getDashboard({ tenantId, plan, subscriptionStatus, trialEndsAt }: DashboardInput) {
+export async function getDashboard({
+	tenantId,
+	plan,
+	subscriptionStatus,
+	trialEndsAt,
+}: DashboardInput) {
 	const now = new Date()
 	const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 	const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
@@ -223,7 +228,11 @@ export async function getDashboard({ tenantId, plan, subscriptionStatus, trialEn
 	}
 
 	// task 1.10 — premium queries
-	let salesThisMonth: { count: number; revenue: number; byChannel: { in_store: number; online: number } } | null = null
+	let salesThisMonth: {
+		count: number
+		revenue: number
+		byChannel: { in_store: number; online: number }
+	} | null = null
 	if (plan === "premium") {
 		const [salesMonthRows, salesChartRows] = await Promise.all([
 			db
@@ -235,7 +244,11 @@ export async function getDashboard({ tenantId, plan, subscriptionStatus, trialEn
 				})
 				.from(sales)
 				.where(
-					and(eq(sales.tenantId, tenantId), eq(sales.status, "paid"), gte(sales.createdAt, monthStart)),
+					and(
+						eq(sales.tenantId, tenantId),
+						eq(sales.status, "paid"),
+						gte(sales.createdAt, monthStart),
+					),
 				),
 
 			db
@@ -271,7 +284,10 @@ export async function getDashboard({ tenantId, plan, subscriptionStatus, trialEn
 			if (existing) {
 				existing.salesRevenue = Number(row.salesRevenue)
 			} else {
-				revenueChartMap.set(row.date, { appointmentRevenue: 0, salesRevenue: Number(row.salesRevenue) })
+				revenueChartMap.set(row.date, {
+					appointmentRevenue: 0,
+					salesRevenue: Number(row.salesRevenue),
+				})
 			}
 		}
 	}

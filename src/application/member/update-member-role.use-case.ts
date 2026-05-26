@@ -27,7 +27,9 @@ export class MemberNotFoundError extends Error {
 	}
 }
 
-export async function updateMemberRole(input: UpdateMemberRoleInput): Promise<UpdateMemberRoleOutput> {
+export async function updateMemberRole(
+	input: UpdateMemberRoleInput,
+): Promise<UpdateMemberRoleOutput> {
 	const { tenantId, userId, role } = input
 
 	const member = await db

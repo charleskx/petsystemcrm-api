@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm"
+import { createTrialEndsAt } from "../../domain/tenant/tenant.entity"
 import { auth } from "../../infra/auth"
 import { db } from "../../infra/database/drizzle/client"
 import { tenantMembers, tenants } from "../../infra/database/drizzle/schema"
-import { createTrialEndsAt } from "../../domain/tenant/tenant.entity"
 
 export interface RegisterTenantInput {
 	tenantName: string
@@ -53,7 +53,12 @@ export async function registerTenant(input: RegisterTenantInput): Promise<Regist
 		userId = userResult.user.id
 	} catch (error) {
 		const msg = String(error instanceof Error ? error.message : error).toLowerCase()
-		if (msg.includes("email") || msg.includes("exist") || msg.includes("already") || msg.includes("use")) {
+		if (
+			msg.includes("email") ||
+			msg.includes("exist") ||
+			msg.includes("already") ||
+			msg.includes("use")
+		) {
 			throw new TenantAlreadyExistsError("email")
 		}
 		throw error

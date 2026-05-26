@@ -36,7 +36,11 @@ function section(title: string, color: string, rows: string): string {
   </div>`
 }
 
-export function renderStockAlertEmail({ tenantName, lowStockProducts, nearExpiryProducts }: StockAlertEmailProps): string {
+export function renderStockAlertEmail({
+	tenantName,
+	lowStockProducts,
+	nearExpiryProducts,
+}: StockAlertEmailProps): string {
 	const lowStockRows = lowStockProducts
 		.map((p) => productRow(p.name, `${p.quantity} / mín ${p.minQuantity}`))
 		.join("")
@@ -46,12 +50,8 @@ export function renderStockAlertEmail({ tenantName, lowStockProducts, nearExpiry
 		.join("")
 
 	const sections = [
-		lowStockProducts.length > 0
-			? section("Estoque Baixo", "#dc2626", lowStockRows)
-			: "",
-		nearExpiryProducts.length > 0
-			? section("Próximos da Validade", "#d97706", nearExpiryRows)
-			: "",
+		lowStockProducts.length > 0 ? section("Estoque Baixo", "#dc2626", lowStockRows) : "",
+		nearExpiryProducts.length > 0 ? section("Próximos da Validade", "#d97706", nearExpiryRows) : "",
 	].join("")
 
 	return `<!DOCTYPE html>

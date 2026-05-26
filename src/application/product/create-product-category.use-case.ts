@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ProductCategoryProps } from "../../domain/product/product-category.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { productCategories } from "../../infra/database/drizzle/schema"
-import type { ProductCategoryProps } from "../../domain/product/product-category.entity"
 
 export class DuplicateCategoryNameError extends Error {
 	constructor() {
@@ -9,7 +9,10 @@ export class DuplicateCategoryNameError extends Error {
 	}
 }
 
-export async function createProductCategory(tenantId: string, name: string): Promise<ProductCategoryProps> {
+export async function createProductCategory(
+	tenantId: string,
+	name: string,
+): Promise<ProductCategoryProps> {
 	const existing = await db
 		.select({ id: productCategories.id })
 		.from(productCategories)
@@ -20,10 +23,7 @@ export async function createProductCategory(tenantId: string, name: string): Pro
 		throw new DuplicateCategoryNameError()
 	}
 
-	const [category] = await db
-		.insert(productCategories)
-		.values({ tenantId, name })
-		.returning()
+	const [category] = await db.insert(productCategories).values({ tenantId, name }).returning()
 
 	return category as ProductCategoryProps
 }

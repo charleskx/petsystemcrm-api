@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
-import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantMembers, tenantInvitations } from "../../../infra/database/drizzle/schema"
 import { and, eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { db } from "../../../infra/database/drizzle/client"
+import { tenantInvitations, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs unique to this test file (computed with correct check digits, root 45000000 branches 0010..0017)
 const CNPJ_CREATE = "45000000001010"
@@ -77,7 +77,12 @@ async function createProduct(cookie: string, initialQuantity = 100): Promise<str
 			method: "POST",
 			url: "/stock/movements",
 			headers: { cookie },
-			payload: { productId, type: "in", quantity: initialQuantity, reason: "Estoque inicial de teste" },
+			payload: {
+				productId,
+				type: "in",
+				quantity: initialQuantity,
+				reason: "Estoque inicial de teste",
+			},
 		})
 		if (stockRes.statusCode !== 201) throw new Error(`Stock movement failed: ${stockRes.body}`)
 	}
@@ -184,7 +189,11 @@ describe("POST /sales — stock deduction", () => {
 	})
 
 	it("debits stock on successful sale", async () => {
-		const before = await app.inject({ method: "GET", url: `/products/${productId}`, headers: { cookie } })
+		const before = await app.inject({
+			method: "GET",
+			url: `/products/${productId}`,
+			headers: { cookie },
+		})
 		const quantityBefore = before.json().quantity
 
 		await app.inject({
@@ -197,12 +206,20 @@ describe("POST /sales — stock deduction", () => {
 			},
 		})
 
-		const after = await app.inject({ method: "GET", url: `/products/${productId}`, headers: { cookie } })
+		const after = await app.inject({
+			method: "GET",
+			url: `/products/${productId}`,
+			headers: { cookie },
+		})
 		expect(after.json().quantity).toBe(quantityBefore - 3)
 	})
 
 	it("returns 422 and does not debit when stock is insufficient", async () => {
-		const before = await app.inject({ method: "GET", url: `/products/${productId}`, headers: { cookie } })
+		const before = await app.inject({
+			method: "GET",
+			url: `/products/${productId}`,
+			headers: { cookie },
+		})
 		const quantityBefore = before.json().quantity
 
 		const response = await app.inject({
@@ -217,7 +234,11 @@ describe("POST /sales — stock deduction", () => {
 
 		expect(response.statusCode).toBe(422)
 
-		const after = await app.inject({ method: "GET", url: `/products/${productId}`, headers: { cookie } })
+		const after = await app.inject({
+			method: "GET",
+			url: `/products/${productId}`,
+			headers: { cookie },
+		})
 		expect(after.json().quantity).toBe(quantityBefore)
 	})
 })
@@ -462,7 +483,9 @@ describe("role authorization on /sales", () => {
 		const invRecord = await db
 			.select()
 			.from(tenantInvitations)
-			.where(and(eq(tenantInvitations.tenantId, tenantId), eq(tenantInvitations.email, collabEmail)))
+			.where(
+				and(eq(tenantInvitations.tenantId, tenantId), eq(tenantInvitations.email, collabEmail)),
+			)
 			.limit(1)
 			.then((rows) => rows[0])
 

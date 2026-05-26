@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { AppointmentProps, PaymentMethod } from "../../domain/appointment/appointment.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { appointments } from "../../infra/database/drizzle/schema"
-import type { AppointmentProps, PaymentMethod } from "../../domain/appointment/appointment.entity"
 import { AppointmentNotFoundError } from "./get-appointment.use-case"
 
 export class AppointmentCancelledError extends Error {

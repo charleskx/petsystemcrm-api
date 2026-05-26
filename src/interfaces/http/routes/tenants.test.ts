@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
 import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { buildApp } from "../../../main/server"
 
 // Valid CNPJs — unique to this file, non-conflicting with other test suites
 const CNPJ_GET_OWNER = "21572980000177"
-const CNPJ_GET_COLLAB = "33600023000196"
+const _CNPJ_GET_COLLAB = "33600023000196"
 const CNPJ_GET_OTHER = "62173620000180"
 const CNPJ_PATCH_OWNER = "14616875000127"
 const CNPJ_PATCH_OTHER = "90001700000193"
@@ -15,9 +15,11 @@ const PASSWORD = "senha1234"
 
 let app: FastifyInstance
 
-async function createTenantAndLogin(
-	opts: { document: string; email?: string; role?: "owner" | "collaborator" },
-): Promise<{ cookie: string; tenantId: string }> {
+async function createTenantAndLogin(opts: {
+	document: string
+	email?: string
+	role?: "owner" | "collaborator"
+}): Promise<{ cookie: string; tenantId: string }> {
 	const email = opts.email ?? `tenant-test+${Date.now()}+${Math.random()}@test.com`
 
 	const reg = await app.inject({
@@ -116,7 +118,11 @@ describe("POST /tenants", () => {
 		const response = await app.inject({
 			method: "POST",
 			url: "/tenants",
-			payload: { ...validPayload, email: `other+${Date.now()}@test.com`, document: "07526557000100" },
+			payload: {
+				...validPayload,
+				email: `other+${Date.now()}@test.com`,
+				document: "07526557000100",
+			},
 		})
 		expect(response.statusCode).toBe(409)
 		expect(response.json().error).toMatch(/documento/i)
@@ -350,7 +356,13 @@ describe("POST /tenants/:id/logo", () => {
 	})
 
 	it("returns 422 for unsupported file type", async () => {
-		const body = buildMultipartBody("logo", "logo.gif", "image/gif", Buffer.from("GIF89a"), boundary)
+		const body = buildMultipartBody(
+			"logo",
+			"logo.gif",
+			"image/gif",
+			Buffer.from("GIF89a"),
+			boundary,
+		)
 
 		const response = await app.inject({
 			method: "POST",

@@ -1,8 +1,8 @@
 import { and, eq, inArray } from "drizzle-orm"
-import { db } from "../../infra/database/drizzle/client"
-import { tenants, tenantMembers } from "../../infra/database/drizzle/schema/tenants"
-import { user } from "../../infra/database/drizzle/schema/auth"
 import { getProductAlerts } from "../../application/product/get-product-alerts.use-case"
+import { db } from "../../infra/database/drizzle/client"
+import { user } from "../../infra/database/drizzle/schema/auth"
+import { tenantMembers, tenants } from "../../infra/database/drizzle/schema/tenants"
 import { getResend } from "../../infra/email/resend"
 import { renderStockAlertEmail } from "../../infra/email/templates/stock-alert"
 
@@ -55,12 +55,7 @@ export async function runStockAlertsJob(): Promise<void> {
 	const activeTenants = await db
 		.select({ id: tenants.id, name: tenants.name })
 		.from(tenants)
-		.where(
-			and(
-				eq(tenants.active, true),
-				inArray(tenants.subscriptionStatus, ["trial", "active"]),
-			),
-		)
+		.where(and(eq(tenants.active, true), inArray(tenants.subscriptionStatus, ["trial", "active"])))
 
 	const CHUNK_SIZE = 10
 	for (let i = 0; i < activeTenants.length; i += CHUNK_SIZE) {

@@ -1,7 +1,7 @@
-import { and, eq, gte, lt, inArray } from "drizzle-orm"
+import { and, eq, gte, inArray, lt } from "drizzle-orm"
+import type { DayOfWeek } from "../../domain/schedule/work-schedule.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { appointments, holidays, workSchedules } from "../../infra/database/drizzle/schema"
-import type { DayOfWeek } from "../../domain/schedule/work-schedule.entity"
 
 export interface GetAvailableSlotsInput {
 	tenantId: string

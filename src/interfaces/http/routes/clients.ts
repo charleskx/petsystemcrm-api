@@ -1,20 +1,23 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { authenticate } from "../middlewares/authenticate"
-import { subscriptionGuard } from "../middlewares/subscription-guard"
-import { createClient, InvalidDocumentError } from "../../../application/client/create-client.use-case"
-import { listClients } from "../../../application/client/list-clients.use-case"
-import { getClient, ClientNotFoundError } from "../../../application/client/get-client.use-case"
-import { updateClient } from "../../../application/client/update-client.use-case"
+import {
+	createClient,
+	InvalidDocumentError,
+} from "../../../application/client/create-client.use-case"
 import { deleteClient } from "../../../application/client/delete-client.use-case"
+import { ClientNotFoundError, getClient } from "../../../application/client/get-client.use-case"
+import { listClients } from "../../../application/client/list-clients.use-case"
+import { updateClient } from "../../../application/client/update-client.use-case"
 import { searchAddress } from "../../../infra/maps/google-maps"
 import { env } from "../../../main/config/env"
+import { authenticate } from "../middlewares/authenticate"
+import { subscriptionGuard } from "../middlewares/subscription-guard"
 import {
 	errorSchema,
 	notFoundSchema,
+	paymentRequiredSchema,
 	unauthorizedSchema,
 	unprocessableSchema,
-	paymentRequiredSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
@@ -58,7 +61,9 @@ export async function clientsRoutes(app: FastifyInstance) {
 				response: {
 					200: {
 						type: "object",
-						properties: { suggestions: { type: "array", items: { type: "object", additionalProperties: true } } },
+						properties: {
+							suggestions: { type: "array", items: { type: "object", additionalProperties: true } },
+						},
 						additionalProperties: true,
 					},
 					401: unauthorizedSchema,

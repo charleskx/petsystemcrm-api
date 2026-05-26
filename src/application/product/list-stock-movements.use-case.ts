@@ -1,7 +1,10 @@
 import { and, desc, eq } from "drizzle-orm"
+import type {
+	StockMovementProps,
+	StockMovementType,
+} from "../../domain/product/stock-movement.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { stockMovements } from "../../infra/database/drizzle/schema"
-import type { StockMovementProps, StockMovementType } from "../../domain/product/stock-movement.entity"
 
 export interface ListStockMovementsInput {
 	tenantId: string
@@ -18,7 +21,9 @@ export interface ListStockMovementsOutput {
 	limit: number
 }
 
-export async function listStockMovements(input: ListStockMovementsInput): Promise<ListStockMovementsOutput> {
+export async function listStockMovements(
+	input: ListStockMovementsInput,
+): Promise<ListStockMovementsOutput> {
 	const { tenantId, productId, type } = input
 	const page = input.page ?? 1
 	const limit = input.limit ?? 20

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ProductProps, UnitType } from "../../domain/product/product.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { productCategories, products, suppliers } from "../../infra/database/drizzle/schema"
-import type { ProductProps, UnitType } from "../../domain/product/product.entity"
 
 export class InvalidCategoryError extends Error {
 	constructor() {

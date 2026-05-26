@@ -1,12 +1,14 @@
+import { eq } from "drizzle-orm"
 import type { FastifyInstance } from "fastify"
 import Stripe from "stripe"
-import { eq } from "drizzle-orm"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
 import { env } from "../../../main/config/env"
 import { errorSchema } from "../schemas/shared"
 
-function stripeStatusToLocal(status: string): "active" | "past_due" | "cancelled" | "expired" | "trial" {
+function stripeStatusToLocal(
+	status: string,
+): "active" | "past_due" | "cancelled" | "expired" | "trial" {
 	switch (status) {
 		case "active":
 			return "active"
@@ -27,7 +29,7 @@ function priceIdToPlan(priceId: string | null | undefined): "essential" | "premi
 }
 
 export async function paymentsRoutes(app: FastifyInstance) {
-	app.addContentTypeParser("application/json", { parseAs: "buffer" }, (req, body, done) => {
+	app.addContentTypeParser("application/json", { parseAs: "buffer" }, (_req, body, done) => {
 		done(null, body)
 	})
 
@@ -37,7 +39,8 @@ export async function paymentsRoutes(app: FastifyInstance) {
 			schema: {
 				tags: ["Payments"],
 				summary: "Stripe webhook",
-				description: "Receives Stripe events to update subscription status. No authentication required.",
+				description:
+					"Receives Stripe events to update subscription status. No authentication required.",
 				response: {
 					200: { type: "object", properties: { received: { type: "boolean" } } },
 					400: errorSchema,
@@ -55,7 +58,11 @@ export async function paymentsRoutes(app: FastifyInstance) {
 
 			let event: ReturnType<typeof stripe.webhooks.constructEvent>
 			try {
-				event = stripe.webhooks.constructEvent(request.body as Buffer, sig, env.STRIPE_WEBHOOK_SECRET)
+				event = stripe.webhooks.constructEvent(
+					request.body as Buffer,
+					sig,
+					env.STRIPE_WEBHOOK_SECRET,
+				)
 			} catch {
 				return reply.status(400).send({ error: "Assinatura do webhook inválida" })
 			}
@@ -98,7 +105,10 @@ export async function paymentsRoutes(app: FastifyInstance) {
 					const plan = priceIdToPlan(priceId)
 					const subscriptionStatus = stripeStatusToLocal(subscription.status)
 
-					await db.update(tenants).set({ subscriptionStatus, plan }).where(eq(tenants.id, tenant.id))
+					await db
+						.update(tenants)
+						.set({ subscriptionStatus, plan })
+						.where(eq(tenants.id, tenant.id))
 					break
 				}
 
@@ -115,7 +125,10 @@ export async function paymentsRoutes(app: FastifyInstance) {
 
 					if (!tenant) break
 
-					await db.update(tenants).set({ subscriptionStatus: "cancelled" }).where(eq(tenants.id, tenant.id))
+					await db
+						.update(tenants)
+						.set({ subscriptionStatus: "cancelled" })
+						.where(eq(tenants.id, tenant.id))
 					break
 				}
 
@@ -132,7 +145,10 @@ export async function paymentsRoutes(app: FastifyInstance) {
 
 					if (!tenant) break
 
-					await db.update(tenants).set({ subscriptionStatus: "past_due" }).where(eq(tenants.id, tenant.id))
+					await db
+						.update(tenants)
+						.set({ subscriptionStatus: "past_due" })
+						.where(eq(tenants.id, tenant.id))
 					break
 				}
 			}

@@ -1,7 +1,7 @@
 import { and, count, eq, ilike } from "drizzle-orm"
+import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { suppliers } from "../../infra/database/drizzle/schema"
-import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 
 export interface ListSuppliersInput {
 	tenantId: string

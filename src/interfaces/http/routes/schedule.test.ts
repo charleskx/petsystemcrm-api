@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest"
-import { buildApp } from "../../../main/server"
-import type { FastifyInstance } from "fastify"
-import { db } from "../../../infra/database/drizzle/client"
-import { tenants, tenantMembers } from "../../../infra/database/drizzle/schema"
 import { and, eq } from "drizzle-orm"
+import type { FastifyInstance } from "fastify"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { db } from "../../../infra/database/drizzle/client"
+import { tenantMembers, tenants } from "../../../infra/database/drizzle/schema"
+import { buildApp } from "../../../main/server"
 
 let app: FastifyInstance
 
@@ -99,7 +99,7 @@ describe("GET /schedule", () => {
 
 describe("PUT /schedule", () => {
 	let cookie: string
-	let tenantId: string
+	let _tenantId: string
 
 	const validSchedule = [
 		{ dayOfWeek: "1", openTime: "08:00", closeTime: "18:00", isClosed: false },
@@ -110,7 +110,7 @@ describe("PUT /schedule", () => {
 	beforeAll(async () => {
 		const result = await createTenantAndLogin(app, { document: CNPJ_PUT_SCHEDULE })
 		cookie = result.cookie
-		tenantId = result.tenantId
+		_tenantId = result.tenantId
 	})
 
 	it("saves schedule and returns 200 with updated entries", async () => {
@@ -216,12 +216,12 @@ describe("PUT /schedule", () => {
 
 describe("holidays", () => {
 	let cookie: string
-	let tenantId: string
+	let _tenantId: string
 
 	beforeAll(async () => {
 		const result = await createTenantAndLogin(app, { document: CNPJ_HOLIDAYS })
 		cookie = result.cookie
-		tenantId = result.tenantId
+		_tenantId = result.tenantId
 	})
 
 	it("GET /schedule/holidays returns empty array initially", async () => {

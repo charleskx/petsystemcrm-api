@@ -9,8 +9,8 @@ import {
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core"
-import { tenants } from "./tenants"
 import { suppliers } from "./suppliers"
+import { tenants } from "./tenants"
 
 export const unitTypeEnum = pgEnum("unit_type", ["unit", "gram"])
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", ["in", "out"])
@@ -35,7 +35,9 @@ export const products = pgTable(
 			.notNull()
 			.references(() => tenants.id, { onDelete: "cascade" }),
 		supplierId: text("supplier_id").references(() => suppliers.id, { onDelete: "set null" }),
-		categoryId: text("category_id").references(() => productCategories.id, { onDelete: "set null" }),
+		categoryId: text("category_id").references(() => productCategories.id, {
+			onDelete: "set null",
+		}),
 		name: varchar("name", { length: 255 }).notNull(),
 		barcode: varchar("barcode", { length: 100 }),
 		sku: varchar("sku", { length: 100 }),

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { ClientProps } from "../../domain/client/client.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { clients } from "../../infra/database/drizzle/schema"
-import type { ClientProps } from "../../domain/client/client.entity"
 
 export class ClientNotFoundError extends Error {
 	constructor() {

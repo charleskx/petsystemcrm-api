@@ -1,20 +1,20 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
+import {
+	createStockMovement,
+	InsufficientStockError,
+	ProductInactiveError,
+	ProductNotFoundError,
+} from "../../../application/product/create-stock-movement.use-case"
+import { listStockMovements } from "../../../application/product/list-stock-movements.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { subscriptionGuard } from "../middlewares/subscription-guard"
 import {
-	createStockMovement,
-	ProductNotFoundError,
-	ProductInactiveError,
-	InsufficientStockError,
-} from "../../../application/product/create-stock-movement.use-case"
-import { listStockMovements } from "../../../application/product/list-stock-movements.use-case"
-import {
-	notFoundSchema,
-	unauthorizedSchema,
 	forbiddenSchema,
-	unprocessableSchema,
+	notFoundSchema,
 	paymentRequiredSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
 } from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
@@ -65,12 +65,16 @@ export async function stockRoutes(app: FastifyInstance) {
 		},
 		async (request, reply) => {
 			if (request.ability.cannot("create", "StockMovement")) {
-				return reply.status(403).send({ error: "Sem permissão para registrar movimentações de estoque" })
+				return reply
+					.status(403)
+					.send({ error: "Sem permissão para registrar movimentações de estoque" })
 			}
 
 			const result = createMovementBody.safeParse(request.body)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Dados inválidos", details: z.treeifyError(result.error) })
 			}
 
 			try {
@@ -116,7 +120,9 @@ export async function stockRoutes(app: FastifyInstance) {
 		async (request, reply) => {
 			const result = listMovementsQuery.safeParse(request.query)
 			if (!result.success) {
-				return reply.status(422).send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
+				return reply
+					.status(422)
+					.send({ error: "Parâmetros inválidos", details: z.treeifyError(result.error) })
 			}
 
 			const movements = await listStockMovements({ tenantId: request.tenantId, ...result.data })

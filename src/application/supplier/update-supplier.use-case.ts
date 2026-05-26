@@ -1,10 +1,10 @@
 import { and, eq } from "drizzle-orm"
+import { validateCNPJ, validateCPF } from "../../domain/shared/document.validator"
+import type { SupplierProps } from "../../domain/supplier/supplier.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { suppliers } from "../../infra/database/drizzle/schema"
-import type { SupplierProps } from "../../domain/supplier/supplier.entity"
-import { validateCPF, validateCNPJ } from "../../domain/shared/document.validator"
-import { SupplierNotFoundError } from "./get-supplier.use-case"
 import { InvalidDocumentError } from "./create-supplier.use-case"
+import { SupplierNotFoundError } from "./get-supplier.use-case"
 
 export interface UpdateSupplierInput {
 	id: string

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
+import type { PetProps } from "../../domain/pet/pet.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { pets } from "../../infra/database/drizzle/schema"
-import type { PetProps } from "../../domain/pet/pet.entity"
 
 export class PetNotFoundError extends Error {
 	constructor() {

@@ -1,28 +1,28 @@
 import type { FastifyInstance } from "fastify"
 import { z } from "zod/v4"
-import { authenticate } from "../middlewares/authenticate"
-import { listMembers } from "../../../application/member/list-members.use-case"
+import {
+	acceptInvite,
+	InviteExpiredError,
+	InviteNotFoundError,
+} from "../../../application/member/accept-invite.use-case"
 import {
 	inviteMember,
 	MemberAlreadyExistsError,
 } from "../../../application/member/invite-member.use-case"
+import { listMembers } from "../../../application/member/list-members.use-case"
+import { removeMember } from "../../../application/member/remove-member.use-case"
 import {
-	acceptInvite,
-	InviteNotFoundError,
-	InviteExpiredError,
-} from "../../../application/member/accept-invite.use-case"
-import {
-	updateMemberRole,
 	LastOwnerError,
 	MemberNotFoundError,
+	updateMemberRole,
 } from "../../../application/member/update-member-role.use-case"
-import { removeMember } from "../../../application/member/remove-member.use-case"
 import { getTenant, TenantNotFoundError } from "../../../application/tenant/get-tenant.use-case"
+import { authenticate } from "../middlewares/authenticate"
 import {
 	errorSchema,
+	forbiddenSchema,
 	notFoundSchema,
 	unauthorizedSchema,
-	forbiddenSchema,
 	unprocessableSchema,
 } from "../schemas/shared"
 

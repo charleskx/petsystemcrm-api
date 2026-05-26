@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm"
 import type { FastifyInstance } from "fastify"
+import { getDashboard } from "../../../application/dashboard/get-dashboard.use-case"
 import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
-import { getDashboard } from "../../../application/dashboard/get-dashboard.use-case"
 import { authenticate } from "../middlewares/authenticate"
 import { unauthorizedSchema } from "../schemas/shared"
 

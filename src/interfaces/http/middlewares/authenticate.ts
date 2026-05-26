@@ -1,6 +1,6 @@
+import { fromNodeHeaders } from "better-auth/node"
 import { eq } from "drizzle-orm"
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { fromNodeHeaders } from "better-auth/node"
 import { auth } from "../../../infra/auth"
 import { defineAbilityFor } from "../../../infra/auth/ability"
 import { db } from "../../../infra/database/drizzle/client"

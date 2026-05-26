@@ -1,7 +1,10 @@
 import { and, eq, sql } from "drizzle-orm"
+import type {
+	StockMovementProps,
+	StockMovementType,
+} from "../../domain/product/stock-movement.entity"
 import { db } from "../../infra/database/drizzle/client"
 import { products, stockMovements } from "../../infra/database/drizzle/schema"
-import type { StockMovementProps, StockMovementType } from "../../domain/product/stock-movement.entity"
 
 export class ProductNotFoundError extends Error {
 	constructor() {
@@ -35,7 +38,9 @@ export interface CreateStockMovementOutput {
 	newQuantity: number
 }
 
-export async function createStockMovement(input: CreateStockMovementInput): Promise<CreateStockMovementOutput> {
+export async function createStockMovement(
+	input: CreateStockMovementInput,
+): Promise<CreateStockMovementOutput> {
 	const { tenantId, productId, type, quantity, reason, referenceId } = input
 
 	return await db.transaction(async (tx) => {
