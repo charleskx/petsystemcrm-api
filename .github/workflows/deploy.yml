@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Trigger Coolify deploy
         run: |
           curl --silent --show-error --fail \
