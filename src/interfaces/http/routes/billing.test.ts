@@ -358,19 +358,37 @@ describe("subscription guard — active trial has full access", () => {
 	})
 })
 
-describe("subscription guard — past_due tenant retains access", () => {
-	it("allows access when subscription is past_due", async () => {
-		const { cookie, tenantId } = await createTenantAndLogin({ document: CNPJ_GUARD_PAST_DUE })
+describe("subscription guard — past_due tenant", () => {
+	let cookie: string
+	let tenantId: string
 
+	beforeAll(async () => {
+		const result = await createTenantAndLogin({ document: CNPJ_GUARD_PAST_DUE })
+		cookie = result.cookie
+		tenantId = result.tenantId
 		await db.update(tenants).set({ subscriptionStatus: "past_due" }).where(eq(tenants.id, tenantId))
+	})
 
+	it("returns 402 on operational route when subscription is past_due", async () => {
 		const response = await app.inject({
 			method: "GET",
-			url: "/clients",
+			url: "/services",
+			headers: { cookie },
+		})
+
+		expect(response.statusCode).toBe(402)
+	})
+
+	it("still allows access to GET /billing/subscription when past_due", async () => {
+		const response = await app.inject({
+			method: "GET",
+			url: "/billing/subscription",
 			headers: { cookie },
 		})
 
 		expect(response.statusCode).toBe(200)
+		const body = response.json()
+		expect(body.status).toBe("past_due")
 	})
 })
 

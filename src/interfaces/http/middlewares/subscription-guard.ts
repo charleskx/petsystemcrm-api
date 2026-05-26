@@ -27,7 +27,7 @@ export async function subscriptionGuard(request: FastifyRequest, reply: FastifyR
 		subscriptionStatus = "expired"
 	}
 
-	if (subscriptionStatus === "expired" || subscriptionStatus === "cancelled") {
+	if (subscriptionStatus === "expired" || subscriptionStatus === "cancelled" || subscriptionStatus === "past_due") {
 		reply.status(402).send({ error: "Pagamento necessário. Acesse /billing para regularizar sua assinatura." })
 	}
 }
