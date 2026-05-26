@@ -10,6 +10,7 @@ export default defineConfig({
 		globals: true,
 		environment: "node",
 		fileParallelism: false,
+		globalSetup: ["src/tests/global-setup.ts"],
 		env: {
 			NODE_ENV: "test",
 			DATABASE_URL: databaseUrl,

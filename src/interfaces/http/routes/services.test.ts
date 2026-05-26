@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest"
 import { buildApp } from "../../../main/server"
 import type { FastifyInstance } from "fastify"
 import { db } from "../../../infra/database/drizzle/client"
-import { tenants } from "../../../infra/database/drizzle/schema"
+import { tenants, tenantInvitations } from "../../../infra/database/drizzle/schema"
 import { eq } from "drizzle-orm"
 
 let app: FastifyInstance
@@ -506,17 +506,29 @@ describe("collaborator authorization", () => {
 			payload: { email: collabEmail, role: "collaborator" },
 		})
 
-		if (inviteRes.statusCode === 201) {
-			const signIn = await app.inject({
+		if (inviteRes.statusCode === 202 && inviteRes.json().status === "invited") {
+			// New user — retrieve the invite token and accept the invite to create the account
+			const invitation = await db
+				.select()
+				.from(tenantInvitations)
+				.where(eq(tenantInvitations.email, collabEmail))
+				.limit(1)
+				.then((rows) => rows[0])
+
+			await app.inject({
 				method: "POST",
-				url: "/auth/sign-in/email",
-				payload: { email: collabEmail, password: PASSWORD },
+				url: `/tenants/${tenantId}/members/accept-invite?token=${invitation.token}`,
+				payload: { name: "Collaborator User", password: PASSWORD },
 			})
-			const cookies = signIn.headers["set-cookie"] as string | string[]
-			collaboratorCookie = Array.isArray(cookies) ? cookies.join("; ") : cookies
-		} else {
-			collaboratorCookie = ownerCookie
 		}
+
+		const signIn = await app.inject({
+			method: "POST",
+			url: "/auth/sign-in/email",
+			payload: { email: collabEmail, password: PASSWORD },
+		})
+		const cookies = signIn.headers["set-cookie"] as string | string[]
+		collaboratorCookie = Array.isArray(cookies) ? cookies.join("; ") : cookies
 
 		const created = await app.inject({
 			method: "POST",
