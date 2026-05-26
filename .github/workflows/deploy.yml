@@ -6,19 +6,12 @@ on:
       - "v*.*.*"
 
 jobs:
-  deploy:
-    name: Deploy to Coolify
+  release:
+    name: Create GitHub Release
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Trigger Coolify deploy
-        run: |
-          curl --silent --show-error --fail \
-            --request GET \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
-            "https://coolify.petsystemcrm.com.br/api/v1/deploy?uuid=gf8mfdkntsxrwj2jul7hzoiv&force=false"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
