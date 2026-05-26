@@ -28,6 +28,6 @@
 
 ## 5. Commit
 
-- [ ] 5.1 Stage and commit `src/interfaces/http/routes/billing.ts`, `payments.ts`, `billing.test.ts`
-- [ ] 5.2 Stage and commit `src/interfaces/http/middlewares/subscription-guard.ts`, `premium-guard.ts`
-- [ ] 5.3 Stage and commit `src/main/config/env.ts`, `src/main/server.ts` changes
+- [x] 5.1 Stage and commit `src/interfaces/http/routes/billing.ts`, `payments.ts`, `billing.test.ts`
+- [x] 5.2 Stage and commit `src/interfaces/http/middlewares/subscription-guard.ts`, `premium-guard.ts`
+- [x] 5.3 Stage and commit `src/main/config/env.ts`, `src/main/server.ts` changes
