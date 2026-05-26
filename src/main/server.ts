@@ -22,6 +22,7 @@ import { suppliersRoutes } from "../interfaces/http/routes/suppliers"
 import { salesRoutes } from "../interfaces/http/routes/sales"
 import { billingRoutes } from "../interfaces/http/routes/billing"
 import { paymentsRoutes } from "../interfaces/http/routes/payments"
+import { dashboardRoutes } from "../interfaces/http/routes/dashboard"
 
 export async function buildApp() {
 	const app = Fastify({
@@ -63,6 +64,7 @@ export async function buildApp() {
 				{ name: "Sales", description: "Sales / POS (premium)" },
 				{ name: "Billing", description: "Subscription billing" },
 				{ name: "Payments", description: "Payment webhooks" },
+				{ name: "Dashboard", description: "Tenant dashboard metrics" },
 			],
 			components: { securitySchemes: { cookieAuth: { type: "apiKey", in: "cookie", name: "better-auth.session_token" } } },
 		},
@@ -87,6 +89,7 @@ export async function buildApp() {
 	await app.register(suppliersRoutes)
 	await app.register(salesRoutes)
 	await app.register(billingRoutes)
+	await app.register(dashboardRoutes)
 
 	return app
 }

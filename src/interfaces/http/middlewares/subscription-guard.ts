@@ -4,6 +4,8 @@ import { db } from "../../../infra/database/drizzle/client"
 import { tenants } from "../../../infra/database/drizzle/schema"
 
 export async function subscriptionGuard(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+	if (request.url.startsWith("/dashboard")) return
+
 	const tenant = await db
 		.select({
 			subscriptionStatus: tenants.subscriptionStatus,
