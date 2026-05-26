@@ -11,7 +11,7 @@ async function start() {
 			const cronTask = startJobs()
 
 			const shutdown = async () => {
-				app.log.info("Encerrando servidor...")
+				app.log.info("Encerrando servidor..")
 				cronTask.stop()
 				await app.close()
 			}
