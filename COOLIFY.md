@@ -100,7 +100,7 @@ Configure em **Health Check**:
 
 ## 9. Migrations automáticas
 
-O `Dockerfile` executa `pnpm migrate` como parte do `CMD` antes de iniciar o servidor.
+O `Dockerfile` executa `node dist/infra/database/migrate.js` antes de iniciar o servidor.
 Se a migration falhar, o container não sobe e o Coolify mantém a versão anterior ativa (zero-downtime rollback).
 
 ---
@@ -131,7 +131,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/dist ./dist
 EXPOSE 3333
-CMD ["sh", "-c", "pnpm migrate && node dist/main/server.js"]
+CMD ["sh", "-c", "node dist/infra/database/migrate.js && node dist/main/index.js"]
 ```
 
 ---

@@ -27,4 +27,4 @@ COPY --from=builder /app/src/infra/database/drizzle/migrations ./migrations
 EXPOSE 3333
 
 # migrate.js runs drizzle migrator (drizzle-orm only, no drizzle-kit needed in prod)
-CMD ["sh", "-c", "node dist/infra/database/migrate.js && node dist/main/server.js"]
+CMD ["sh", "-c", "node dist/infra/database/migrate.js && node dist/main/index.js"]
