@@ -32,6 +32,9 @@
 		"vite": "^7.0.0",
 		"vitest": "^4.1.7"
 	},
+	"pnpm": {
+		"onlyBuiltDependencies": ["esbuild"]
+	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1053.0",
 		"@casl/ability": "^7.0.0",
