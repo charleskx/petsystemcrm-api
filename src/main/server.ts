@@ -46,6 +46,24 @@ export async function buildApp() {
 	await app.register(swagger, {
 		openapi: {
 			info: { title: "PetSystem CRM API", version: "1.0.0", description: "Multi-tenant pet shop management API" },
+			servers: [{ url: env.API_URL || "http://localhost:3333", description: "API Server" }],
+			tags: [
+				{ name: "Health", description: "Health check" },
+				{ name: "Auth", description: "Authentication (better-auth)" },
+				{ name: "Tenants", description: "Tenant management" },
+				{ name: "Members", description: "Tenant member management" },
+				{ name: "Clients", description: "Client management" },
+				{ name: "Pets", description: "Pet management" },
+				{ name: "Services", description: "Service catalog" },
+				{ name: "Schedule", description: "Work schedule and holidays" },
+				{ name: "Appointments", description: "Appointment management" },
+				{ name: "Products", description: "Product and category management" },
+				{ name: "Stock", description: "Stock movements" },
+				{ name: "Suppliers", description: "Supplier management (premium)" },
+				{ name: "Sales", description: "Sales / POS (premium)" },
+				{ name: "Billing", description: "Subscription billing" },
+				{ name: "Payments", description: "Payment webhooks" },
+			],
 			components: { securitySchemes: { cookieAuth: { type: "apiKey", in: "cookie", name: "better-auth.session_token" } } },
 		},
 	})

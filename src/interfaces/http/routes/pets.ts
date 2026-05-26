@@ -8,6 +8,12 @@ import { getPet, PetNotFoundError } from "../../../application/pet/get-pet.use-c
 import { updatePet } from "../../../application/pet/update-pet.use-case"
 import { deletePet } from "../../../application/pet/delete-pet.use-case"
 import { uploadPetPhoto, InvalidPhotoError } from "../../../application/pet/upload-pet-photo.use-case"
+import {
+	notFoundSchema,
+	unauthorizedSchema,
+	unprocessableSchema,
+	paymentRequiredSchema,
+} from "../schemas/shared"
 
 const preHandler = [authenticate, subscriptionGuard]
 
@@ -26,134 +32,295 @@ const createPetBody = z.object({
 const updatePetBody = createPetBody.partial()
 
 export async function petsRoutes(app: FastifyInstance) {
-	app.post("/clients/:clientId/pets", { preHandler }, async (request, reply) => {
-		const { clientId } = request.params as { clientId: string }
-		const result = createPetBody.safeParse(request.body)
-		if (!result.success) {
-			return reply.status(422).send({
-				error: "Dados inválidos",
-				details: z.treeifyError(result.error),
-			})
-		}
-
-		const { birthDate, ...rest } = result.data
-		try {
-			const pet = await createPet({
-				tenantId: request.tenantId,
-				clientId,
-				...rest,
-				birthDate: birthDate ? new Date(birthDate) : undefined,
-			})
-			return reply.status(201).send(pet)
-		} catch (error) {
-			if (error instanceof ClientNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+	app.post(
+		"/clients/:clientId/pets",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "Create pet",
+				security: [{ cookieAuth: [] }],
+				params: {
+					type: "object",
+					required: ["clientId"],
+					properties: { clientId: { type: "string" } },
+				},
+				body: {
+					type: "object",
+					properties: {
+						name: { type: "string" },
+						species: { type: "string" },
+						breed: { type: "string" },
+						birthDate: { type: "string" },
+						weight: { type: "string" },
+						size: { type: "string" },
+						notes: { type: "string" },
+					},
+				},
+				response: {
+					201: { type: "object", additionalProperties: true },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+					422: unprocessableSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { clientId } = request.params as { clientId: string }
+			const result = createPetBody.safeParse(request.body)
+			if (!result.success) {
+				return reply.status(422).send({
+					error: "Dados inválidos",
+					details: z.treeifyError(result.error),
+				})
 			}
-			throw error
-		}
-	})
 
-	app.get("/clients/:clientId/pets", { preHandler }, async (request, reply) => {
-		const { clientId } = request.params as { clientId: string }
-		try {
-			const pets = await listPets(clientId, request.tenantId)
-			return reply.send(pets)
-		} catch (error) {
-			if (error instanceof ClientNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+			const { birthDate, ...rest } = result.data
+			try {
+				const pet = await createPet({
+					tenantId: request.tenantId,
+					clientId,
+					...rest,
+					birthDate: birthDate ? new Date(birthDate) : undefined,
+				})
+				return reply.status(201).send(pet)
+			} catch (error) {
+				if (error instanceof ClientNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
 			}
-			throw error
-		}
-	})
+		},
+	)
 
-	app.get("/pets/:id", { preHandler }, async (request, reply) => {
-		const { id } = request.params as { id: string }
-		try {
-			const pet = await getPet(id, request.tenantId)
-			return reply.send(pet)
-		} catch (error) {
-			if (error instanceof PetNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+	app.get(
+		"/clients/:clientId/pets",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "List client pets",
+				security: [{ cookieAuth: [] }],
+				params: {
+					type: "object",
+					required: ["clientId"],
+					properties: { clientId: { type: "string" } },
+				},
+				response: {
+					200: { type: "array", items: { type: "object", additionalProperties: true } },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { clientId } = request.params as { clientId: string }
+			try {
+				const pets = await listPets(clientId, request.tenantId)
+				return reply.send(pets)
+			} catch (error) {
+				if (error instanceof ClientNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
 			}
-			throw error
-		}
-	})
+		},
+	)
 
-	app.patch("/pets/:id", { preHandler }, async (request, reply) => {
-		const { id } = request.params as { id: string }
-		const result = updatePetBody.safeParse(request.body)
-		if (!result.success) {
-			return reply.status(422).send({
-				error: "Dados inválidos",
-				details: z.treeifyError(result.error),
-			})
-		}
-
-		const { birthDate, ...rest } = result.data
-		try {
-			const pet = await updatePet({
-				id,
-				tenantId: request.tenantId,
-				...rest,
-				...(birthDate !== undefined ? { birthDate: birthDate ? new Date(birthDate) : null } : {}),
-			})
-			return reply.send(pet)
-		} catch (error) {
-			if (error instanceof PetNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+	app.get(
+		"/pets/:id",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "Get pet",
+				security: [{ cookieAuth: [] }],
+				params: {
+					type: "object",
+					required: ["id"],
+					properties: { id: { type: "string" } },
+				},
+				response: {
+					200: { type: "object", additionalProperties: true },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { id } = request.params as { id: string }
+			try {
+				const pet = await getPet(id, request.tenantId)
+				return reply.send(pet)
+			} catch (error) {
+				if (error instanceof PetNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
 			}
-			throw error
-		}
-	})
+		},
+	)
 
-	app.delete("/pets/:id", { preHandler }, async (request, reply) => {
-		const { id } = request.params as { id: string }
-		try {
-			await deletePet(id, request.tenantId)
-			return reply.status(204).send()
-		} catch (error) {
-			if (error instanceof PetNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+	app.patch(
+		"/pets/:id",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "Update pet",
+				security: [{ cookieAuth: [] }],
+				params: {
+					type: "object",
+					required: ["id"],
+					properties: { id: { type: "string" } },
+				},
+				body: {
+					type: "object",
+					properties: {
+						name: { type: "string" },
+						species: { type: "string" },
+						breed: { type: "string" },
+						birthDate: { type: "string" },
+						weight: { type: "string" },
+						size: { type: "string" },
+						notes: { type: "string" },
+					},
+				},
+				response: {
+					200: { type: "object", additionalProperties: true },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+					422: unprocessableSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { id } = request.params as { id: string }
+			const result = updatePetBody.safeParse(request.body)
+			if (!result.success) {
+				return reply.status(422).send({
+					error: "Dados inválidos",
+					details: z.treeifyError(result.error),
+				})
 			}
-			throw error
-		}
-	})
 
-	app.post("/pets/:id/photo", { preHandler }, async (request, reply) => {
-		const { id } = request.params as { id: string }
-
-		const data = await request.file()
-		if (!data) {
-			return reply.status(422).send({ error: "Nenhum arquivo enviado" })
-		}
-
-		const chunks: Buffer[] = []
-		for await (const chunk of data.file) {
-			chunks.push(chunk)
-		}
-		const fileBuffer = Buffer.concat(chunks)
-		const fileSize = fileBuffer.length
-
-		const { Readable } = await import("node:stream")
-		const stream = Readable.from(fileBuffer)
-
-		try {
-			const result = await uploadPetPhoto({
-				petId: id,
-				tenantId: request.tenantId,
-				stream,
-				mimetype: data.mimetype,
-				fileSize,
-			})
-			return reply.send(result)
-		} catch (error) {
-			if (error instanceof InvalidPhotoError) {
-				return reply.status(422).send({ error: error.message })
+			const { birthDate, ...rest } = result.data
+			try {
+				const pet = await updatePet({
+					id,
+					tenantId: request.tenantId,
+					...rest,
+					...(birthDate !== undefined ? { birthDate: birthDate ? new Date(birthDate) : null } : {}),
+				})
+				return reply.send(pet)
+			} catch (error) {
+				if (error instanceof PetNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
 			}
-			if (error instanceof PetNotFoundError) {
-				return reply.status(404).send({ error: error.message })
+		},
+	)
+
+	app.delete(
+		"/pets/:id",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "Delete pet",
+				security: [{ cookieAuth: [] }],
+				params: {
+					type: "object",
+					required: ["id"],
+					properties: { id: { type: "string" } },
+				},
+				response: {
+					204: { type: "null" },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { id } = request.params as { id: string }
+			try {
+				await deletePet(id, request.tenantId)
+				return reply.status(204).send()
+			} catch (error) {
+				if (error instanceof PetNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
 			}
-			throw error
-		}
-	})
+		},
+	)
+
+	app.post(
+		"/pets/:id/photo",
+		{
+			preHandler,
+			schema: {
+				tags: ["Pets"],
+				summary: "Upload pet photo",
+				description: "Accepts multipart/form-data with image file (JPEG, PNG, WebP — max 5 MB)",
+				security: [{ cookieAuth: [] }],
+				consumes: ["multipart/form-data"],
+				params: {
+					type: "object",
+					required: ["id"],
+					properties: { id: { type: "string" } },
+				},
+				response: {
+					200: { type: "object", additionalProperties: true },
+					401: unauthorizedSchema,
+					402: paymentRequiredSchema,
+					404: notFoundSchema,
+					422: unprocessableSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { id } = request.params as { id: string }
+
+			const data = await request.file()
+			if (!data) {
+				return reply.status(422).send({ error: "Nenhum arquivo enviado" })
+			}
+
+			const chunks: Buffer[] = []
+			for await (const chunk of data.file) {
+				chunks.push(chunk)
+			}
+			const fileBuffer = Buffer.concat(chunks)
+			const fileSize = fileBuffer.length
+
+			const { Readable } = await import("node:stream")
+			const stream = Readable.from(fileBuffer)
+
+			try {
+				const result = await uploadPetPhoto({
+					petId: id,
+					tenantId: request.tenantId,
+					stream,
+					mimetype: data.mimetype,
+					fileSize,
+				})
+				return reply.send(result)
+			} catch (error) {
+				if (error instanceof InvalidPhotoError) {
+					return reply.status(422).send({ error: error.message })
+				}
+				if (error instanceof PetNotFoundError) {
+					return reply.status(404).send({ error: error.message })
+				}
+				throw error
+			}
+		},
+	)
 }
