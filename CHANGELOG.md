@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.2.3
+
+[compare changes](https://github.com/charleskx/petsystemcrm-api/compare/v1.2.2...v1.2.3)
+
+### 🏡 Chore
+
+- **ci:** Remove Coolify webhook trigger — auto deploy via GitHub App ([4c9f36b](https://github.com/charleskx/petsystemcrm-api/commit/4c9f36b))
+
+### ❤️ Contributors
+
+- Charleston Amaral ([@charleskx](https://github.com/charleskx))
+
 ## v1.2.2
 
 [compare changes](https://github.com/charleskx/petsystemcrm-api/compare/v1.2.1...v1.2.2)

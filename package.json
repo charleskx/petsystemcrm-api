@@ -1,6 +1,6 @@
 {
 	"name": "petsystemcrm-api",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"description": "Multi-tenant CRM API for pet shops",
 	"main": "dist/main/index.js",
 	"scripts": {
