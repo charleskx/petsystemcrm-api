@@ -1,9 +1,6 @@
 packages:
   - "."
 
-settings:
-  minimumReleaseAge: "0 seconds"
-
-allowBuilds:
-  "@fission-ai/openspec": true
-  esbuild: true
+onlyBuiltDependencies:
+  - esbuild
+  - "@fission-ai/openspec"
